@@ -760,6 +760,19 @@
             // Handle window resize
             window.addEventListener('resize', resizeCanvas);
         })();
+        
+        // Clear content when navigating between pages
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Clear any existing content when navigating
+                    if (typeof clearAllContent === 'function') {
+                        clearAllContent();
+                    }
+                });
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}

@@ -144,7 +144,10 @@
                             <h4 id="selected-algorithm-title" class="mb-1"></h4>
                             <p id="selected-algorithm-description" class="text-muted mb-0"></p>
                         </div>
-                        <div class="ms-auto">
+                        <div class="ms-auto d-flex gap-2">
+                            <button id="clear-all-btn" class="btn btn-outline-danger" title="Clear all content">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
                             <button id="back-btn" class="btn btn-outline-primary">
                                 <i class="fas fa-arrow-left"></i> Back to Selection
                             </button>
@@ -911,7 +914,6 @@
 </style>
 
 <script>
-let selectedAlgorithm = null;
 let currentKeys = null;
 
 // Algorithm data
@@ -954,7 +956,97 @@ const algorithmData = {
     }
 };
 
+// Global variables for cleanup
+let selectedAlgorithm = null;
+let selectedFile = null;
+
+// Function to clear all content and reset the page
+function clearAllContent() {
+    console.log('Clearing all content...');
+    
+    // Reset algorithm selection
+    selectedAlgorithm = null;
+    selectedFile = null;
+    
+    // Clear algorithm selection
+    const algorithmCards = document.querySelectorAll('.algorithm-card');
+    algorithmCards.forEach(card => card.classList.remove('selected'));
+    
+    // Reset UI elements
+    const proceedBtn = document.getElementById('proceed-btn');
+    const cryptoWorkspace = document.getElementById('crypto-workspace');
+    const algorithmSelection = document.getElementById('algorithm-selection');
+    const resultsArea = document.getElementById('results-area');
+    const fileInfo = document.getElementById('file-info');
+    const fileInput = document.getElementById('file-input');
+    const textInput = document.getElementById('text-input');
+    const keyInput = document.getElementById('key-input');
+    
+    // Hide proceed button
+    if (proceedBtn) proceedBtn.style.display = 'none';
+    
+    // Show algorithm selection, hide crypto workspace
+    if (algorithmSelection) algorithmSelection.style.display = 'block';
+    if (cryptoWorkspace) cryptoWorkspace.style.display = 'none';
+    
+    // Clear results area
+    if (resultsArea) resultsArea.innerHTML = '';
+    
+    // Clear file info
+    if (fileInfo) {
+        fileInfo.style.display = 'none';
+        fileInfo.innerHTML = '';
+    }
+    
+    // Clear file input
+    if (fileInput) fileInput.value = '';
+    
+    // Clear text input
+    if (textInput) textInput.value = '';
+    
+    // Clear key input
+    if (keyInput) keyInput.value = '';
+    
+    // Reset step indicator
+    updateStepIndicator(1);
+    
+    // Clear any alerts
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => alert.remove());
+    
+    // Clear loading overlays
+    const loadingOverlays = document.querySelectorAll('.loading-overlay');
+    loadingOverlays.forEach(overlay => overlay.remove());
+    
+    console.log('Content cleared successfully');
+}
+
+// Clear content when page becomes visible (tab switching)
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // Page became visible, clear content
+        clearAllContent();
+    }
+});
+
+// Clear content before page unload (refresh, navigation)
+window.addEventListener('beforeunload', function() {
+    clearAllContent();
+});
+
+// Handle keyboard shortcuts for refresh
+document.addEventListener('keydown', function(e) {
+    // F5 or Ctrl+R - clear content before refresh
+    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+        clearAllContent();
+    }
+});
+
+// Clear content on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Clear all content first
+    clearAllContent();
+    
     // Algorithm selection
     const algorithmCards = document.querySelectorAll('.algorithm-card');
     const proceedBtn = document.getElementById('proceed-btn');
@@ -998,6 +1090,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Clear All button
+    document.getElementById('clear-all-btn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all content? This will reset the entire page.')) {
+            clearAllContent();
+        }
+    });
+    
     // Back button
     document.getElementById('back-btn').addEventListener('click', function() {
         cryptoWorkspace.style.display = 'none';
@@ -1005,6 +1104,11 @@ document.addEventListener('DOMContentLoaded', function() {
         proceedBtn.style.display = 'none';
         algorithmCards.forEach(c => c.classList.remove('selected'));
         selectedAlgorithm = null;
+        selectedFile = null;
+        
+        // Clear all content when going back
+        clearAllContent();
+        
         updateStepIndicator(1);
     });
     
@@ -1099,6 +1203,7 @@ function handleFileSelect() {
     
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
+        selectedFile = file; // Store globally for cleanup
         fileName.textContent = file.name;
         fileSize.textContent = formatFileSize(file.size);
         fileInfo.style.display = 'block';
