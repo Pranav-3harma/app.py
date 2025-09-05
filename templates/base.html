@@ -761,14 +761,17 @@
             window.addEventListener('resize', resizeCanvas);
         })();
         
-        // Clear content when navigating between pages
+        // Clear content when navigating between pages (only for actual navigation)
         document.addEventListener('DOMContentLoaded', function() {
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    // Clear any existing content when navigating
-                    if (typeof clearAllContent === 'function') {
-                        clearAllContent();
+                link.addEventListener('click', function(e) {
+                    // Only clear content if this is actual navigation (not a button click)
+                    if (e.target.tagName === 'A' && !e.target.closest('button')) {
+                        // Clear any existing content when navigating
+                        if (typeof clearAllContent === 'function') {
+                            clearAllContent();
+                        }
                     }
                 });
             });

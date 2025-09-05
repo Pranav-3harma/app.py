@@ -348,7 +348,7 @@
                                                                  <!-- Encrypt Tab -->
                                  <div class="tab-pane fade show active" id="encrypt" role="tabpanel">
                                      <div class="p-3">
-                                         <button id="encrypt-btn" class="btn btn-primary btn-lg w-100" onclick="console.log('Direct onclick triggered'); encryptFile();">
+                                         <button id="encrypt-btn" class="btn btn-primary btn-lg w-100" type="button">
                                              <i class="fas fa-lock"></i> <span id="encrypt-btn-text">Encrypt File</span>
                                          </button>
                                      </div>
@@ -357,7 +357,7 @@
                                  <!-- Decrypt Tab -->
                                  <div class="tab-pane fade" id="decrypt" role="tabpanel">
                                      <div class="p-3">
-                                         <button id="decrypt-btn" class="btn btn-success btn-lg w-100">
+                                         <button id="decrypt-btn" class="btn btn-success btn-lg w-100" type="button">
                                              <i class="fas fa-unlock"></i> <span id="decrypt-btn-text">Decrypt File</span>
                                          </button>
                                      </div>
@@ -960,9 +960,46 @@ const algorithmData = {
 let selectedAlgorithm = null;
 let selectedFile = null;
 
+// Function to select algorithm from URL parameter
+function selectAlgorithmFromParam(algorithm) {
+    console.log('Selecting algorithm from URL parameter:', algorithm);
+    
+    // Find and select the algorithm card
+    const algorithmCards = document.querySelectorAll('.algorithm-card');
+    algorithmCards.forEach(card => {
+        if (card.dataset.algorithm === algorithm) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+    
+    // Show proceed button
+    const proceedBtn = document.getElementById('proceed-btn');
+    if (proceedBtn) proceedBtn.style.display = 'inline-block';
+    
+    // Hide algorithm selection and show crypto workspace
+    const algorithmSelection = document.getElementById('algorithm-selection');
+    const cryptoWorkspace = document.getElementById('crypto-workspace');
+    
+    if (algorithmSelection) algorithmSelection.style.display = 'none';
+    if (cryptoWorkspace) cryptoWorkspace.style.display = 'block';
+    
+    // Update algorithm display
+    updateAlgorithmDisplay();
+    updateStepIndicator(2);
+    
+    console.log('Algorithm selected from URL parameter successfully');
+}
+
 // Function to clear all content and reset the page
 function clearAllContent() {
     console.log('Clearing all content...');
+    
+    // Clear URL parameter
+    const url = new URL(window.location);
+    url.searchParams.delete('algorithm');
+    window.history.replaceState({}, '', url);
     
     // Reset algorithm selection
     selectedAlgorithm = null;
@@ -1021,31 +1058,57 @@ function clearAllContent() {
     console.log('Content cleared successfully');
 }
 
-// Clear content when page becomes visible (tab switching)
+// Clear content when page becomes visible (tab switching) - only if no algorithm in URL
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
-        // Page became visible, clear content
+        const urlParams = new URLSearchParams(window.location.search);
+        const algorithmParam = urlParams.get('algorithm');
+        
+        // Only clear content if no algorithm parameter in URL
+        if (!algorithmParam) {
+            clearAllContent();
+        }
+    }
+});
+
+// Clear content before page unload (refresh, navigation) - only if no algorithm in URL
+window.addEventListener('beforeunload', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const algorithmParam = urlParams.get('algorithm');
+    
+    // Only clear content if no algorithm parameter in URL
+    if (!algorithmParam) {
         clearAllContent();
     }
 });
 
-// Clear content before page unload (refresh, navigation)
-window.addEventListener('beforeunload', function() {
-    clearAllContent();
-});
-
-// Handle keyboard shortcuts for refresh
+// Handle keyboard shortcuts for refresh - only clear if no algorithm in URL
 document.addEventListener('keydown', function(e) {
-    // F5 or Ctrl+R - clear content before refresh
+    // F5 or Ctrl+R - clear content before refresh only if no algorithm in URL
     if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
-        clearAllContent();
+        const urlParams = new URLSearchParams(window.location.search);
+        const algorithmParam = urlParams.get('algorithm');
+        
+        if (!algorithmParam) {
+            clearAllContent();
+        }
     }
 });
 
 // Clear content on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Clear all content first
-    clearAllContent();
+    // Check for algorithm parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const algorithmParam = urlParams.get('algorithm');
+    
+    if (algorithmParam && algorithmData[algorithmParam]) {
+        // If algorithm parameter exists, select it and proceed
+        selectedAlgorithm = algorithmParam;
+        selectAlgorithmFromParam(algorithmParam);
+    } else {
+        // Clear all content only if no algorithm parameter
+        clearAllContent();
+    }
     
     // Algorithm selection
     const algorithmCards = document.querySelectorAll('.algorithm-card');
@@ -1083,6 +1146,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Proceed button
     proceedBtn.addEventListener('click', function() {
         if (selectedAlgorithm) {
+            // Update URL with algorithm parameter
+            const url = new URL(window.location);
+            url.searchParams.set('algorithm', selectedAlgorithm);
+            window.history.pushState({}, '', url);
+            
             algorithmSelection.style.display = 'none';
             cryptoWorkspace.style.display = 'block';
             updateAlgorithmDisplay();
@@ -1099,6 +1167,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Back button
     document.getElementById('back-btn').addEventListener('click', function() {
+        // Clear URL parameter
+        const url = new URL(window.location);
+        url.searchParams.delete('algorithm');
+        window.history.pushState({}, '', url);
+        
         cryptoWorkspace.style.display = 'none';
         algorithmSelection.style.display = 'block';
         proceedBtn.style.display = 'none';
@@ -1176,19 +1249,25 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Looking for decrypt button:', decryptBtn);
     
     if (encryptBtn) {
-        encryptBtn.addEventListener('click', function() {
+        encryptBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             console.log('Encrypt button clicked!');
             console.log('selectedAlgorithm:', selectedAlgorithm);
             encryptFile();
+            return false;
         });
     } else {
         console.error('Encrypt button not found in DOM');
     }
     
     if (decryptBtn) {
-        decryptBtn.addEventListener('click', function() {
+        decryptBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             console.log('Decrypt button clicked!');
             decryptFile();
+            return false;
         });
     } else {
         console.error('Decrypt button not found in DOM');
@@ -1475,137 +1554,172 @@ function encryptFile() {
 }
 
 function decryptFile() {
-    const fileMode = document.getElementById('fileMode');
-    const textMode = document.getElementById('textMode');
+    console.log('=== DECRYPT FUNCTION STARTED ===');
+    console.log('selectedAlgorithm:', selectedAlgorithm);
     
-    if (fileMode.checked) {
-        // File decryption
-        const fileInput = document.getElementById('file-input');
-        if (!fileInput.files.length) {
-            showAlert('Please select a file to decrypt', 'error');
-            return;
-        }
+    try {
+        const fileMode = document.getElementById('fileMode');
+        const textMode = document.getElementById('textMode');
         
-        if (!selectedAlgorithm) {
-            showAlert('Please select an algorithm', 'error');
-            return;
-        }
-        
-        showLoading('Decrypting file...');
-        
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('algorithm', selectedAlgorithm);
-        formData.append('input_type', 'file');
-        
-        // Add key based on algorithm
-        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
-            const privateKeyInput = document.getElementById('private-key-input');
-            const generatedKeys = document.getElementById('generated-keys');
+        if (fileMode.checked) {
+            // File decryption
+            const fileInput = document.getElementById('file-input');
+            console.log('fileInput element:', fileInput);
+            console.log('fileInput.files:', fileInput.files);
+            console.log('fileInput.files.length:', fileInput.files.length);
             
-            if (generatedKeys.style.display !== 'none' && currentKeys) {
-                formData.append('key', currentKeys.private_key);
-            } else if (privateKeyInput.value) {
-                formData.append('key', privateKeyInput.value);
-            } else {
-                hideLoading();
-                showAlert('Please generate or provide a private key', 'error');
+            if (!fileInput.files.length) {
+                console.log('No file selected - showing error');
+                showAlert('Please select a file to decrypt', 'error');
                 return;
             }
-        } else {
-            const symmetricKeyInput = document.getElementById('symmetric-key-input');
-            if (symmetricKeyInput.value) {
-                formData.append('key', symmetricKeyInput.value);
-            } else {
-                hideLoading();
-                showAlert('Please provide an encryption key', 'error');
-                return;
-            }
-        }
-        
-        fetch('/api/decrypt', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                displayDecryptionResult(data);
-                showAlert('File decrypted successfully!', 'success');
-            } else {
-                showAlert(data.error || 'Decryption failed', 'error');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showAlert('Error decrypting file: ' + error.message, 'error');
-        });
-    } else if (textMode.checked) {
-        // Text decryption
-        const textInput = document.getElementById('text-input');
-        const message = textInput.value.trim();
-        
-        if (!message) {
-            showAlert('Please enter a message to decrypt', 'error');
-            return;
-        }
-        
-        if (!selectedAlgorithm) {
-            showAlert('Please select an algorithm', 'error');
-            return;
-        }
-        
-        showLoading('Decrypting message...');
-        
-        const formData = new FormData();
-        formData.append('message', message);
-        formData.append('algorithm', selectedAlgorithm);
-        formData.append('input_type', 'text');
-        
-        // Add key based on algorithm
-        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
-            const privateKeyInput = document.getElementById('private-key-input');
-            const generatedKeys = document.getElementById('generated-keys');
             
-            if (generatedKeys.style.display !== 'none' && currentKeys) {
-                formData.append('key', currentKeys.private_key);
-            } else if (privateKeyInput.value) {
-                formData.append('key', privateKeyInput.value);
-            } else {
-                hideLoading();
-                showAlert('Please generate or provide a private key', 'error');
+            if (!selectedAlgorithm) {
+                console.log('No algorithm selected - showing error');
+                showAlert('Please select an algorithm', 'error');
                 return;
             }
-        } else {
-            const symmetricKeyInput = document.getElementById('symmetric-key-input');
-            if (symmetricKeyInput.value) {
-                formData.append('key', symmetricKeyInput.value);
+            
+            console.log('Starting file decryption process...');
+            showLoading('Decrypting file...');
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('algorithm', selectedAlgorithm);
+            formData.append('input_type', 'file');
+            
+            // Add key based on algorithm
+            if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+                const privateKeyInput = document.getElementById('private-key-input');
+                const generatedKeys = document.getElementById('generated-keys');
+                
+                if (generatedKeys.style.display !== 'none' && currentKeys) {
+                    formData.append('key', currentKeys.private_key);
+                } else if (privateKeyInput.value) {
+                    formData.append('key', privateKeyInput.value);
+                } else {
+                    hideLoading();
+                    showAlert('Please generate or provide a private key', 'error');
+                    return;
+                }
             } else {
+                const symmetricKeyInput = document.getElementById('symmetric-key-input');
+                if (symmetricKeyInput.value) {
+                    formData.append('key', symmetricKeyInput.value);
+                } else {
+                    hideLoading();
+                    showAlert('Please provide an encryption key', 'error');
+                    return;
+                }
+            }
+            
+            fetch('/api/decrypt', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Decrypt response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Decrypt response data:', data);
                 hideLoading();
-                showAlert('Please provide an encryption key', 'error');
+                if (data.success) {
+                    displayDecryptionResult(data);
+                    showAlert('File decrypted successfully!', 'success');
+                } else {
+                    console.error('Decrypt failed:', data.error);
+                    showAlert(data.error || 'Decryption failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Decrypt error:', error);
+                hideLoading();
+                showAlert('Error decrypting file: ' + error.message, 'error');
+            });
+        } else if (textMode.checked) {
+            // Text decryption
+            const textInput = document.getElementById('text-input');
+            const message = textInput.value.trim();
+            
+            if (!message) {
+                showAlert('Please enter a message to decrypt', 'error');
                 return;
             }
+            
+            if (!selectedAlgorithm) {
+                showAlert('Please select an algorithm', 'error');
+                return;
+            }
+            
+            console.log('Starting text decryption process...');
+            showLoading('Decrypting message...');
+            
+            const formData = new FormData();
+            formData.append('message', message);
+            formData.append('algorithm', selectedAlgorithm);
+            formData.append('input_type', 'text');
+            
+            // Add key based on algorithm
+            if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+                const privateKeyInput = document.getElementById('private-key-input');
+                const generatedKeys = document.getElementById('generated-keys');
+                
+                if (generatedKeys.style.display !== 'none' && currentKeys) {
+                    formData.append('key', currentKeys.private_key);
+                } else if (privateKeyInput.value) {
+                    formData.append('key', privateKeyInput.value);
+                } else {
+                    hideLoading();
+                    showAlert('Please generate or provide a private key', 'error');
+                    return;
+                }
+            } else {
+                const symmetricKeyInput = document.getElementById('symmetric-key-input');
+                if (symmetricKeyInput.value) {
+                    formData.append('key', symmetricKeyInput.value);
+                } else {
+                    hideLoading();
+                    showAlert('Please provide an encryption key', 'error');
+                    return;
+                }
+            }
+            
+            fetch('/api/decrypt', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Decrypt response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Decrypt response data:', data);
+                hideLoading();
+                if (data.success) {
+                    displayDecryptionResult(data);
+                    showAlert('Message decrypted successfully!', 'success');
+                } else {
+                    console.error('Decrypt failed:', data.error);
+                    showAlert(data.error || 'Decryption failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Decrypt error:', error);
+                hideLoading();
+                showAlert('Error decrypting message: ' + error.message, 'error');
+            });
         }
-        
-        fetch('/api/decrypt', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                displayDecryptionResult(data);
-                showAlert('Message decrypted successfully!', 'success');
-            } else {
-                showAlert(data.error || 'Decryption failed', 'error');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            showAlert('Error decrypting message: ' + error.message, 'error');
-        });
+    } catch (error) {
+        console.error('Unexpected error in decryptFile:', error);
+        hideLoading();
+        showAlert('Unexpected error occurred: ' + error.message, 'error');
     }
 }
 

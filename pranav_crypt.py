@@ -186,6 +186,7 @@ class PranavCrypt:
                 key = base64.b64decode(key)
             
             nonce = os.urandom(12)
+
             
             # Use ChaCha20Poly1305 instead of ChaCha20 for better compatibility
             cipher = ChaCha20Poly1305(key)
@@ -427,8 +428,12 @@ def encrypt():
 def decrypt():
     """Decrypt file or text message"""
     try:
+        print(f"Decrypt route called with algorithm: {request.form.get('algorithm')}")  # Debug print
         algorithm = request.form.get('algorithm')
         input_type = request.form.get('input_type', 'file')  # Default to file for backward compatibility
+        
+        if not algorithm:
+            return jsonify({'error': 'Algorithm is required'}), 400
         
         if input_type == 'file':
             if 'file' not in request.files:
@@ -443,7 +448,7 @@ def decrypt():
             
             key = request.form.get('key')
             if not key:
-                return jsonify({'error': 'Key is required'}), 400
+                return jsonify({'error': 'Key is required for decryption'}), 400
             
             result = {}
             
@@ -511,7 +516,7 @@ def decrypt():
             
             key = request.form.get('key')
             if not key:
-                return jsonify({'error': 'Key is required'}), 400
+                return jsonify({'error': 'Key is required for decryption'}), 400
             
             result = {}
             
@@ -565,6 +570,13 @@ def download(filename):
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    # Development server configuration
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV') == 'development'
-    app.run(debug=debug, host='0.0.0.0', port=port)
+    
+    # Only run development server if not in production
+    if os.environ.get('FLASK_ENV') != 'production':
+        app.run(debug=debug, host='0.0.0.0', port=port)
+    else:
+        print("Production mode detected. Use Gunicorn to run the server:")
+        print("gunicorn --config gunicorn.conf.py wsgi:app")
