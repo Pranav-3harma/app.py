@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}PranavCrypt - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <span class="text-primary">Pranav</span><span class="text-success">Crypt</span>
+                </h1>
+                <p class="lead mb-4">
+                    Advanced multi-algorithm cryptographic application for secure file encryption and digital signatures.
+                    Experience the power of modern cryptography with a sleek, neon-themed interface.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/encrypt_decrypt" class="btn btn-primary btn-lg">
+                        <i class="fas fa-lock"></i> Start Encrypting
+                    </a>
+                    <a href="/about" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-visual">
+                    <i class="fas fa-shield-alt" style="font-size: 8rem; color: var(--neon-green); text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);"></i>
+                    <div class="floating-elements">
+                        <div class="floating-icon" style="--delay: 0s;">
+                            <i class="fas fa-key" style="color: var(--neon-blue);"></i>
+                        </div>
+                        <div class="floating-icon" style="--delay: 2s;">
+                            <i class="fas fa-file-alt" style="color: var(--neon-green);"></i>
+                        </div>
+                        <div class="floating-icon" style="--delay: 4s;">
+                            <i class="fas fa-lock" style="color: var(--neon-blue);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Algorithm Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Supported Algorithms</h2>
+            <p class="lead text-muted">Choose from four powerful cryptographic algorithms</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- RSA Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="RSA">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-key" style="font-size: 3rem; color: var(--neon-green);"></i>
+                        </div>
+                        <h4 class="card-title text-primary">RSA</h4>
+                        <span class="badge bg-primary mb-3">Asymmetric</span>
+                        <p class="card-text text-muted">
+                            Public-key cryptography for secure key exchange and hybrid encryption.
+                            Perfect for large file encryption with automatic key generation.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">2048-bit Keys</span>
+                            <span class="feature-tag">Hybrid Encryption</span>
+                            <span class="feature-tag">File Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AES Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="AES">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--neon-blue);"></i>
+                        </div>
+                        <h4 class="card-title text-success">AES</h4>
+                        <span class="badge bg-success mb-3">Symmetric</span>
+                        <p class="card-text text-muted">
+                            Advanced Encryption Standard with AES-256-CBC mode.
+                            High-performance encryption for files of any size.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">AES-256-CBC</span>
+                            <span class="feature-tag">Random IV</span>
+                            <span class="feature-tag">Fast Processing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ChaCha20 Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="ChaCha20">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-bolt" style="font-size: 3rem; color: #ff6b6b;"></i>
+                        </div>
+                        <h4 class="card-title" style="color: #ff6b6b;">ChaCha20</h4>
+                        <span class="badge bg-info mb-3">Stream Cipher</span>
+                        <p class="card-text text-muted">
+                            High-performance stream cipher with 256-bit key and 96-bit nonce.
+                            Ideal for real-time file encryption and streaming data.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">256-bit Key</span>
+                            <span class="feature-tag">96-bit Nonce</span>
+                            <span class="feature-tag">High Speed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Blowfish Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="Blowfish">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-fish" style="font-size: 3rem; color: #feca57;"></i>
+                        </div>
+                        <h4 class="card-title" style="color: #feca57;">Blowfish</h4>
+                        <span class="badge bg-warning mb-3">Block Cipher</span>
+                        <p class="card-text text-muted">
+                            Fast and secure block cipher with variable key length for file encryption.
+                            High-performance encryption with 448-bit keys and CBC mode.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">448-bit Key</span>
+                            <span class="feature-tag">CBC Mode</span>
+                            <span class="feature-tag">Fast Processing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Simple 3-step process for secure file encryption</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="workflow-step text-center">
+                    <div class="step-number">1</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-mouse-pointer" style="font-size: 2.5rem; color: var(--neon-green);"></i>
+                    </div>
+                    <h4 class="text-primary">Select Algorithm</h4>
+                    <p class="text-muted">Choose from RSA, AES, ChaCha20, or Blowfish based on your security needs and file type.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="workflow-step text-center">
+                    <div class="step-number">2</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-key" style="font-size: 2.5rem; color: var(--neon-blue);"></i>
+                    </div>
+                    <h4 class="text-success">Generate Keys</h4>
+                    <p class="text-muted">Automatically generate secure cryptographic keys or provide your own for maximum control.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="workflow-step text-center">
+                    <div class="step-number">3</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-file-upload" style="font-size: 2.5rem; color: var(--neon-green);"></i>
+                    </div>
+                    <h4 class="text-primary">Encrypt Files</h4>
+                    <p class="text-muted">Upload your files and encrypt them securely. Download the encrypted results instantly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Security Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold mb-4">Security Features</h2>
+                <div class="security-features">
+                    <div class="security-item mb-4">
+                        <div class="security-icon">
+                            <i class="fas fa-server" style="color: var(--neon-green);"></i>
+                        </div>
+                        <div class="security-content">
+                            <h5 class="text-primary">No Server Storage</h5>
+                            <p class="text-muted">Your files and keys are never stored on our servers. Everything is processed in memory and cleared immediately.</p>
+                        </div>
+                    </div>
+                    <div class="security-item mb-4">
+                        <div class="security-icon">
+                            <i class="fas fa-shield-alt" style="color: var(--neon-blue);"></i>
+                        </div>
+                        <div class="security-content">
+                            <h5 class="text-success">Military-Grade Encryption</h5>
+                            <p class="text-muted">All algorithms use industry-standard cryptographic libraries with proven security.</p>
+                        </div>
+                    </div>
+                    <div class="security-item mb-4">
+                        <div class="security-icon">
+                            <i class="fas fa-lock" style="color: var(--neon-green);"></i>
+                        </div>
+                        <div class="security-content">
+                            <h5 class="text-primary">Session Security</h5>
+                            <p class="text-muted">Session data is automatically cleared after each operation to prevent data leakage.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="security-visual text-center">
+                    <div class="security-shield">
+                        <i class="fas fa-shield-alt" style="font-size: 6rem; color: var(--neon-green); text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);"></i>
+                        <div class="security-rings">
+                            <div class="ring ring-1"></div>
+                            <div class="ring ring-2"></div>
+                            <div class="ring ring-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-visual {
+    position: relative;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.floating-elements {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.floating-icon {
+    position: absolute;
+    font-size: 2rem;
+    animation: float 6s ease-in-out infinite;
+    animation-delay: var(--delay);
+}
+
+.floating-icon:nth-child(1) { top: 20%; left: 20%; }
+.floating-icon:nth-child(2) { top: 60%; right: 20%; }
+.floating-icon:nth-child(3) { bottom: 20%; left: 50%; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.algorithm-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.algorithm-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--neon-green);
+    box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
+}
+
+.algorithm-icon {
+    transition: all 0.3s ease;
+}
+
+.algorithm-card:hover .algorithm-icon i {
+    transform: scale(1.1);
+    text-shadow: 0 0 20px currentColor;
+}
+
+.algorithm-features {
+    margin-top: 1rem;
+}
+
+.feature-tag {
+    display: inline-block;
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin: 0.25rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.workflow-step {
+    padding: 2rem;
+    border-radius: 15px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.workflow-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+}
+
+.step-number {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
+    color: #000;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    line-height: 40px;
+    margin-bottom: 1rem;
+}
+
+.security-features {
+    margin-top: 2rem;
+}
+
+.security-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.security-icon {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 255, 136, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.security-content h5 {
+    margin-bottom: 0.5rem;
+}
+
+.security-visual {
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.security-shield {
+    position: relative;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.security-rings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.ring {
+    position: absolute;
+    border: 2px solid var(--neon-green);
+    border-radius: 50%;
+    animation: rotate 10s linear infinite;
+}
+
+.ring-1 {
+    width: 200px;
+    height: 200px;
+    border-color: rgba(0, 255, 136, 0.3);
+    animation-duration: 10s;
+}
+
+.ring-2 {
+    width: 250px;
+    height: 250px;
+    border-color: rgba(0, 212, 255, 0.3);
+    animation-duration: 15s;
+    animation-direction: reverse;
+}
+
+.ring-3 {
+    width: 300px;
+    height: 300px;
+    border-color: rgba(0, 255, 136, 0.2);
+    animation-duration: 20s;
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .hero-visual {
+        height: 300px;
+    }
+    
+    .floating-icon {
+        font-size: 1.5rem;
+    }
+    
+    .security-visual {
+        height: 300px;
+    }
+    
+    .security-shield i {
+        font-size: 4rem;
+    }
+    
+    .ring-1 { width: 150px; height: 150px; }
+    .ring-2 { width: 200px; height: 200px; }
+    .ring-3 { width: 250px; height: 250px; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Algorithm card click handlers
+    const algorithmCards = document.querySelectorAll('.algorithm-card');
+    algorithmCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const algorithm = this.dataset.algorithm;
+            window.location.href = `/encrypt_decrypt?algorithm=${algorithm}`;
+        });
+    });
+    
+    // Add hover effects
+    algorithmCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.classList.add('glow-green');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.classList.remove('glow-green');
+        });
+    });
+});
+</script>
+{% endblock %}

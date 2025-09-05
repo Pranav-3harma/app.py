@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberCrypt - File Encryption Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+            }
+            to {
+                text-shadow: 0 0 40px rgba(0, 255, 136, 0.8), 0 0 60px rgba(0, 255, 136, 0.3);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .encrypt-card .card-title {
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .decrypt-card .card-title {
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .verify-card .card-title {
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #888;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px 5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-encrypt {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-encrypt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn-decrypt {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: #000;
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-decrypt:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-verify {
+            background: linear-gradient(45deg, #ff6b35, #cc4a1a);
+            color: #000;
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .key-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .key-input::placeholder {
+            color: #666;
+        }
+
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result-success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .result-error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .result-warning {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+        }
+
+        .integrity-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .integrity-pass {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+
+        .integrity-fail {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff4444;
+        }
+
+        .checksum-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .checksum-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.8rem;
+        }
+
+        .checksum-label {
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .checksum-value {
+            word-break: break-all;
+        }
+
+        .key-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            margin: 15px 0;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00ff88;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .security-note {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .security-note h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .security-note ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .security-note li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .security-note li::before {
+            content: '🔒';
+            position: absolute;
+            left: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .upload-area {
+                padding: 30px 15px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .upload-area {
+                padding: 25px 10px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animation for cards */
+        .card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .encrypt-card {
+            animation-delay: 0.1s;
+        }
+
+        .decrypt-card {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">CyberCrypt</h1>
+            <p class="subtitle">Advanced File Encryption & Decryption Tool</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Encryption Card -->
+            <div class="card encrypt-card">
+                <h2 class="card-title">
+                    <i class="fas fa-lock"></i> Encrypt File
+                </h2>
+                
+                <div class="upload-area" id="encryptUpload">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p class="upload-text">Drop your file here or click to browse</p>
+                    <p class="upload-hint">Supports all file types up to 16MB</p>
+                    <input type="file" class="file-input" id="encryptFile" accept="*/*">
+                </div>
+
+                <div class="file-info" id="encryptFileInfo">
+                    <div class="file-name" id="encryptFileName"></div>
+                    <div class="file-size" id="encryptFileSize"></div>
+                </div>
+
+                <button class="btn btn-encrypt" id="encryptBtn" disabled>
+                    <i class="fas fa-shield-alt"></i> Encrypt File
+                </button>
+
+                <div class="loading" id="encryptLoading">
+                    <div class="spinner"></div>
+                    <p>Encrypting your file...</p>
+                </div>
+
+                <div class="result-area" id="encryptResult"></div>
+            </div>
+
+            <!-- Decryption Card -->
+            <div class="card decrypt-card">
+                <h2 class="card-title">
+                    <i class="fas fa-unlock"></i> Decrypt File
+                </h2>
+                
+                <div class="upload-area" id="decryptUpload">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p class="upload-text">Drop encrypted file here or click to browse</p>
+                    <p class="upload-hint">Select the encrypted file</p>
+                    <input type="file" class="file-input" id="decryptFile" accept="*/*">
+                </div>
+
+                <div class="file-info" id="decryptFileInfo">
+                    <div class="file-name" id="decryptFileName"></div>
+                    <div class="file-size" id="decryptFileSize"></div>
+                </div>
+
+                <div class="upload-area" id="integrityUpload" style="margin-top: 15px;">
+                    <i class="fas fa-shield-check upload-icon"></i>
+                    <p class="upload-text">Drop integrity file here (optional)</p>
+                    <p class="upload-hint">For file integrity verification</p>
+                    <input type="file" class="file-input" id="integrityFile" accept="*.json">
+                </div>
+
+                <div class="file-info" id="integrityFileInfo" style="display: none;">
+                    <div class="file-name" id="integrityFileName"></div>
+                    <div class="file-size" id="integrityFileSize"></div>
+                </div>
+
+                <input type="text" class="key-input" id="decryptKey" placeholder="Enter your encryption key">
+                
+                <button class="btn btn-decrypt" id="decryptBtn" disabled>
+                    <i class="fas fa-key"></i> Decrypt File
+                </button>
+
+                <div class="loading" id="decryptLoading">
+                    <div class="spinner"></div>
+                    <p>Decrypting your file...</p>
+                </div>
+
+                <div class="result-area" id="decryptResult"></div>
+            </div>
+        </main>
+
+        <!-- Integrity Verification Card -->
+        <div class="card verify-card" style="margin-top: 30px; grid-column: 1 / -1;">
+            <h2 class="card-title">
+                <i class="fas fa-shield-check"></i> Verify File Integrity
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <div class="upload-area" id="verifyFileUpload">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p class="upload-text">Drop file here (encrypted or decrypted)</p>
+                        <p class="upload-hint">Select the file to verify</p>
+                        <input type="file" class="file-input" id="verifyFile" accept="*/*">
+                    </div>
+
+                    <div class="file-info" id="verifyFileInfo">
+                        <div class="file-name" id="verifyFileName"></div>
+                        <div class="file-size" id="verifyFileSize"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="upload-area" id="verifyIntegrityUpload">
+                        <i class="fas fa-shield-check upload-icon"></i>
+                        <p class="upload-text">Drop integrity file here</p>
+                        <p class="upload-hint">Select the integrity verification file</p>
+                        <input type="file" class="file-input" id="verifyIntegrityFile" accept="*.json">
+                    </div>
+
+                    <div class="file-info" id="verifyIntegrityFileInfo">
+                        <div class="file-name" id="verifyIntegrityFileName"></div>
+                        <div class="file-size" id="verifyIntegrityFileSize"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="radio" name="verifyType" value="encrypted" checked style="margin: 0;">
+                    <span>Verify Encrypted File</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer; margin-left: 20px;">
+                    <input type="radio" name="verifyType" value="decrypted" style="margin: 0;">
+                    <span>Verify Decrypted File</span>
+                </label>
+            </div>
+
+            <button class="btn btn-verify" id="verifyBtn" disabled>
+                <i class="fas fa-search"></i> Verify Integrity
+            </button>
+
+            <div class="loading" id="verifyLoading">
+                <div class="spinner"></div>
+                <p>Verifying file integrity...</p>
+            </div>
+
+            <div class="result-area" id="verifyResult"></div>
+        </div>
+
+        <div class="security-note">
+            <h3><i class="fas fa-shield-alt"></i> Security Features</h3>
+                         <ul>
+                 <li>Military-grade AES-256 encryption using Fernet</li>
+                 <li>Unique encryption key generated for each file</li>
+                 <li>Multiple checksum verification (MD5, SHA256, SHA512)</li>
+                 <li>Digital signature verification for decrypted file authenticity</li>
+                 <li>File size comparison for integrity validation</li>
+                 <li>Files are securely processed and automatically cleaned up</li>
+                 <li>No data is stored on our servers after processing</li>
+                 <li>All operations happen locally in your browser</li>
+             </ul>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2024 CyberCrypt - Secure File Encryption Tool</p>
+        </footer>
+    </div>
+
+    <script>
+        // File upload handling
+        function setupFileUpload(uploadAreaId, fileInputId, fileInfoId, fileNameId, fileSizeId, btnId) {
+            const uploadArea = document.getElementById(uploadAreaId);
+            const fileInput = document.getElementById(fileInputId);
+            const fileInfo = document.getElementById(fileInfoId);
+            const fileName = document.getElementById(fileNameId);
+            const fileSize = document.getElementById(fileSizeId);
+            const btn = document.getElementById(btnId);
+
+            // Click to upload
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect(fileInput, fileInfo, fileName, fileSize, btn);
+                }
+            });
+
+            // File selection
+            fileInput.addEventListener('change', (e) => {
+                handleFileSelect(e.target, fileInfo, fileName, fileSize, btn);
+            });
+        }
+
+        function handleFileSelect(fileInput, fileInfo, fileName, fileSize, btn) {
+            const file = fileInput.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                btn.disabled = false;
+            } else {
+                fileInfo.style.display = 'none';
+                btn.disabled = true;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Encryption
+        document.getElementById('encryptBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('encryptFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const loading = document.getElementById('encryptLoading');
+            const result = document.getElementById('encryptResult');
+            const btn = document.getElementById('encryptBtn');
+
+            loading.style.display = 'block';
+            btn.disabled = true;
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/encrypt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                                 if (data.success) {
+                     result.innerHTML = `
+                         <div class="result-success">
+                             <h4><i class="fas fa-check-circle"></i> ${data.message}</h4>
+                             <p><strong>Your encryption key (save this securely):</strong></p>
+                             <div class="key-display">${data.key}</div>
+                             <button class="btn btn-secondary" onclick="downloadFile('${data.filename}')">
+                                 <i class="fas fa-download"></i> Download Encrypted File
+                             </button>
+                             <button class="btn btn-secondary" onclick="downloadFile('${data.integrity_file}')">
+                                 <i class="fas fa-shield-check"></i> Download Integrity File
+                             </button>
+                             <div style="margin-top: 20px;">
+                                 <h5><i class="fas fa-info-circle"></i> File Integrity Information:</h5>
+                                 <div class="checksum-grid">
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Original File Size:</div>
+                                         <div class="checksum-value">${data.original_checksums.file_size} bytes</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Encrypted File Size:</div>
+                                         <div class="checksum-value">${data.encrypted_checksums.file_size} bytes</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Original MD5:</div>
+                                         <div class="checksum-value">${data.original_checksums.md5}</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Original SHA256:</div>
+                                         <div class="checksum-value">${data.original_checksums.sha256}</div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-error">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result-error">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                        <p>Failed to encrypt file. Please try again.</p>
+                    </div>
+                `;
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                result.style.display = 'block';
+            }
+        });
+
+        // Decryption
+        document.getElementById('decryptBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('decryptFile');
+            const keyInput = document.getElementById('decryptKey');
+            const file = fileInput.files[0];
+            const key = keyInput.value.trim();
+            
+            if (!file || !key) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('key', key);
+
+            const loading = document.getElementById('decryptLoading');
+            const result = document.getElementById('decryptResult');
+            const btn = document.getElementById('decryptBtn');
+
+            loading.style.display = 'block';
+            btn.disabled = true;
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/decrypt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                                 if (data.success) {
+                     let resultClass = 'result-success';
+                     let icon = 'fas fa-check-circle';
+                     let message = data.message;
+                     
+                     if (!data.integrity_verified) {
+                         resultClass = 'result-warning';
+                         icon = 'fas fa-exclamation-triangle';
+                         message += ' (Integrity verification failed)';
+                     }
+                     
+                     let verificationHtml = '';
+                     if (data.verification_details && Object.keys(data.verification_details).length > 0) {
+                         verificationHtml = `
+                             <div style="margin-top: 20px;">
+                                 <h5><i class="fas fa-shield-check"></i> Integrity Verification Results:</h5>
+                                 ${data.integrity_verified ? 
+                                     '<div class="integrity-status integrity-pass"><i class="fas fa-check"></i> File integrity verified successfully!</div>' :
+                                     '<div class="integrity-status integrity-fail"><i class="fas fa-times"></i> File integrity verification failed!</div>'
+                                 }
+                                 ${data.decryption_verified ? 
+                                     '<div class="integrity-status integrity-pass"><i class="fas fa-check"></i> Decryption verified successfully!</div>' :
+                                     '<div class="integrity-status integrity-fail"><i class="fas fa-times"></i> Decryption verification failed!</div>'
+                                 }
+                                 <div class="checksum-grid">
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Decrypted File Size:</div>
+                                         <div class="checksum-value">${data.decrypted_checksums.file_size} bytes</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Decrypted MD5:</div>
+                                         <div class="checksum-value">${data.decrypted_checksums.md5}</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Decrypted SHA256:</div>
+                                         <div class="checksum-value">${data.decrypted_checksums.sha256}</div>
+                                     </div>
+                                     <div class="checksum-item">
+                                         <div class="checksum-label">Decrypted SHA512:</div>
+                                         <div class="checksum-value">${data.decrypted_checksums.sha512}</div>
+                                     </div>
+                                 </div>
+                             </div>
+                         `;
+                     }
+                     
+                     result.innerHTML = `
+                         <div class="${resultClass}">
+                             <h4><i class="${icon}"></i> ${message}</h4>
+                             <button class="btn btn-secondary" onclick="downloadFile('${data.filename}')">
+                                 <i class="fas fa-download"></i> Download Decrypted File
+                             </button>
+                             ${verificationHtml}
+                         </div>
+                     `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-error">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result-error">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                        <p>Failed to decrypt file. Please try again.</p>
+                    </div>
+                `;
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                result.style.display = 'block';
+            }
+        });
+
+        function downloadFile(filename) {
+            window.open(`/download/${filename}`, '_blank');
+        }
+
+        // Initialize file uploads
+        setupFileUpload('encryptUpload', 'encryptFile', 'encryptFileInfo', 'encryptFileName', 'encryptFileSize', 'encryptBtn');
+        setupFileUpload('decryptUpload', 'decryptFile', 'decryptFileInfo', 'decryptFileName', 'decryptFileSize', 'decryptBtn');
+        setupFileUpload('integrityUpload', 'integrityFile', 'integrityFileInfo', 'integrityFileName', 'integrityFileSize', 'decryptBtn');
+        setupFileUpload('verifyFileUpload', 'verifyFile', 'verifyFileInfo', 'verifyFileName', 'verifyFileSize', 'verifyBtn');
+        setupFileUpload('verifyIntegrityUpload', 'verifyIntegrityFile', 'verifyIntegrityFileInfo', 'verifyIntegrityFileName', 'verifyIntegrityFileSize', 'verifyBtn');
+
+        // Key input validation for decrypt button
+        document.getElementById('decryptKey').addEventListener('input', function() {
+            const decryptBtn = document.getElementById('decryptBtn');
+            const fileInput = document.getElementById('decryptFile');
+            decryptBtn.disabled = !(this.value.trim() && fileInput.files.length > 0);
+        });
+
+        // Integrity verification
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('verifyFile');
+            const integrityInput = document.getElementById('verifyIntegrityFile');
+            const verifyType = document.querySelector('input[name="verifyType"]:checked').value;
+            const file = fileInput.files[0];
+            const integrityFile = integrityInput.files[0];
+            
+            if (!file || !integrityFile) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('integrity_file', integrityFile);
+            formData.append('verify_type', verifyType);
+
+            const loading = document.getElementById('verifyLoading');
+            const result = document.getElementById('verifyResult');
+            const btn = document.getElementById('verifyBtn');
+
+            loading.style.display = 'block';
+            btn.disabled = true;
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch('/verify', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const resultClass = data.integrity_verified ? 'result-success' : 'result-error';
+                    const icon = data.integrity_verified ? 'fas fa-check-circle' : 'fas fa-times-circle';
+                    const verifyTypeText = data.verify_type === 'encrypted' ? 'Encrypted File' : 'Decrypted File';
+                    const message = data.integrity_verified ? 
+                        `${verifyTypeText} integrity verified successfully!` : 
+                        `${verifyTypeText} integrity verification failed!`;
+
+                    let checksumsHtml = '';
+                    if (data.checksums_match) {
+                        checksumsHtml = `
+                            <div style="margin-top: 20px;">
+                                <h5><i class="fas fa-shield-check"></i> Checksum Verification:</h5>
+                                <div class="checksum-grid">
+                                    <div class="checksum-item">
+                                        <div class="checksum-label">MD5 Match:</div>
+                                        <div class="checksum-value ${data.checksums_match.md5 ? 'integrity-pass' : 'integrity-fail'}">
+                                            ${data.checksums_match.md5 ? '✓ Pass' : '✗ Fail'}
+                                        </div>
+                                    </div>
+                                    <div class="checksum-item">
+                                        <div class="checksum-label">SHA256 Match:</div>
+                                        <div class="checksum-value ${data.checksums_match.sha256 ? 'integrity-pass' : 'integrity-fail'}">
+                                            ${data.checksums_match.sha256 ? '✓ Pass' : '✗ Fail'}
+                                        </div>
+                                    </div>
+                                    <div class="checksum-item">
+                                        <div class="checksum-label">SHA512 Match:</div>
+                                        <div class="checksum-value ${data.checksums_match.sha512 ? 'integrity-pass' : 'integrity-fail'}">
+                                            ${data.checksums_match.sha512 ? '✓ Pass' : '✗ Fail'}
+                                        </div>
+                                    </div>
+                                    <div class="checksum-item">
+                                        <div class="checksum-label">File Size Match:</div>
+                                        <div class="checksum-value ${data.checksums_match.file_size ? 'integrity-pass' : 'integrity-fail'}">
+                                            ${data.checksums_match.file_size ? '✓ Pass' : '✗ Fail'}
+                                        </div>
+                                    </div>
+                                </div>
+                                                                 ${data.verify_type === 'decrypted' ? `
+                                     <div style="margin-top: 15px;">
+                                         <h6>Digital Signature:</h6>
+                                         <div class="checksum-value ${data.signature_verified ? 'integrity-pass' : 'integrity-fail'}">
+                                             ${data.signature_verified ? '✓ Signature Verified' : '✗ Signature Invalid'}
+                                         </div>
+                                     </div>
+                                 ` : ''}
+                                <div style="margin-top: 15px;">
+                                    <h6>Original Filename:</h6>
+                                    <div class="checksum-value">${data.original_filename}</div>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <h6>Verification Type:</h6>
+                                    <div class="checksum-value">${verifyTypeText}</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    result.innerHTML = `
+                        <div class="${resultClass}">
+                            <h4><i class="${icon}"></i> ${message}</h4>
+                            ${checksumsHtml}
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `
+                        <div class="result-error">
+                            <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="result-error">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Error</h4>
+                        <p>Failed to verify file integrity. Please try again.</p>
+                    </div>
+                `;
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                result.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

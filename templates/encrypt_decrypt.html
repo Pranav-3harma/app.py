@@ -1,0 +1,1695 @@
+{% extends "base.html" %}
+
+{% block title %}PranavCrypt - Encrypt/Decrypt{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Algorithm Selection Section -->
+    <div id="algorithm-selection" class="mb-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">
+                <span class="text-primary">Choose</span> <span class="text-success">Algorithm</span>
+            </h1>
+            <p class="lead text-muted">Select the cryptographic algorithm that best suits your needs</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- RSA Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="RSA">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-key" style="font-size: 3rem; color: var(--neon-green);"></i>
+                        </div>
+                        <h4 class="card-title text-primary">RSA</h4>
+                        <span class="badge bg-primary mb-3">Asymmetric</span>
+                        <p class="card-text text-muted">
+                            Public-key cryptography for secure file encryption with hybrid encryption support.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">2048-bit Keys</span>
+                            <span class="feature-tag">Hybrid Encryption</span>
+                            <span class="feature-tag">File Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AES Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="AES">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--neon-blue);"></i>
+                        </div>
+                        <h4 class="card-title text-success">AES</h4>
+                        <span class="badge bg-success mb-3">Symmetric</span>
+                        <p class="card-text text-muted">
+                            Advanced Encryption Standard with AES-256-CBC mode for high-performance file encryption.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">AES-256-CBC</span>
+                            <span class="feature-tag">Random IV</span>
+                            <span class="feature-tag">Fast Processing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ChaCha20 Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="ChaCha20">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-bolt" style="font-size: 3rem; color: #ff6b6b;"></i>
+                        </div>
+                        <h4 class="card-title" style="color: #ff6b6b;">ChaCha20</h4>
+                        <span class="badge bg-info mb-3">Stream Cipher</span>
+                        <p class="card-text text-muted">
+                            High-performance stream cipher with 256-bit key and 96-bit nonce for file encryption.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">256-bit Key</span>
+                            <span class="feature-tag">96-bit Nonce</span>
+                            <span class="feature-tag">High Speed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Blowfish Card -->
+            <div class="col-lg-6 col-xl-3">
+                <div class="card h-100 algorithm-card" data-algorithm="Blowfish">
+                    <div class="card-body text-center p-4">
+                        <div class="algorithm-icon mb-3">
+                            <i class="fas fa-fish" style="font-size: 3rem; color: #feca57;"></i>
+                        </div>
+                        <h4 class="card-title" style="color: #feca57;">Blowfish</h4>
+                        <span class="badge bg-warning mb-3">Block Cipher</span>
+                        <p class="card-text text-muted">
+                            Fast and secure block cipher with variable key length for file encryption and decryption.
+                        </p>
+                        <div class="algorithm-features">
+                            <span class="feature-tag">448-bit Key</span>
+                            <span class="feature-tag">CBC Mode</span>
+                            <span class="feature-tag">Fast Processing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button id="proceed-btn" class="btn btn-primary btn-lg" style="display: none;">
+                <i class="fas fa-arrow-right"></i> Proceed with Selected Algorithm
+            </button>
+        </div>
+    </div>
+    
+    <!-- Crypto Workspace -->
+    <div id="crypto-workspace" style="display: none;">
+        <!-- Step Indicator -->
+        <div class="step-indicator mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="step active">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Select Algorithm</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Generate Keys</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Encrypt/Decrypt</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Selected Algorithm Display -->
+        <div class="selected-algorithm-display mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="selected-algorithm-icon me-3">
+                            <i id="selected-algorithm-icon" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h4 id="selected-algorithm-title" class="mb-1"></h4>
+                            <p id="selected-algorithm-description" class="text-muted mb-0"></p>
+                        </div>
+                        <div class="ms-auto">
+                            <button id="back-btn" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left"></i> Back to Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Form -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-upload"></i> File Upload & Processing
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Algorithm Info -->
+                        <div class="algorithm-info mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Algorithm Type</h6>
+                                    <p id="algorithm-type" class="text-muted"></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Key Requirements</h6>
+                                    <p id="key-requirements" class="text-muted"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                                                 <!-- Input Mode Selection -->
+                         <div class="input-mode-selection mb-4">
+                             <h6 class="text-primary mb-3">
+                                 <i class="fas fa-edit"></i> Input Mode
+                             </h6>
+                             <div class="row">
+                                 <div class="col-md-6">
+                                     <div class="form-check">
+                                         <input class="form-check-input" type="radio" name="inputMode" id="fileMode" value="file" checked>
+                                         <label class="form-check-label" for="fileMode">
+                                             <i class="fas fa-file"></i> File Upload
+                                         </label>
+                                     </div>
+                                 </div>
+                                 <div class="col-md-6">
+                                     <div class="form-check">
+                                         <input class="form-check-input" type="radio" name="inputMode" id="textMode" value="text">
+                                         <label class="form-check-label" for="textMode">
+                                             <i class="fas fa-keyboard"></i> Text Message
+                                         </label>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- File Upload Area -->
+                         <div class="file-upload-area mb-4" id="file-upload-area">
+                            <input type="file" id="file-input" class="file-input" accept="*/*">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text">Drag & Drop your file here</div>
+                            <div class="upload-hint">or click to browse</div>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary" onclick="document.getElementById('file-input').click()">
+                                    <i class="fas fa-folder-open"></i> Choose File
+                                </button>
+                            </div>
+                                                 </div>
+                         
+                         <!-- Text Input Area -->
+                         <div class="text-input-area mb-4" id="text-input-area" style="display: none;">
+                             <div class="card">
+                                 <div class="card-body">
+                                     <h6 class="text-primary mb-3">
+                                         <i class="fas fa-keyboard"></i> Text Message
+                                     </h6>
+                                     <div class="mb-3">
+                                         <label class="form-label">Enter your message</label>
+                                         <textarea class="form-control" id="text-input" rows="6" placeholder="Type your message here..."></textarea>
+                                     </div>
+                                     <div class="text-muted">
+                                         <small>Maximum length: 10,000 characters</small>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- File Info -->
+                        <div id="file-info" class="mb-4" style="display: none;">
+                            <div class="alert alert-success">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-alt me-3" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <h6 class="mb-1" id="file-name"></h6>
+                                        <p class="mb-0 text-muted" id="file-size"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Key Management -->
+                        <div id="key-management" class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-key"></i> Key Management
+                            </h6>
+                            
+                            <!-- RSA/ECC Key Generation -->
+                            <div id="key-generation-section" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <button id="generate-keys-btn" class="btn btn-primary w-100 mb-3">
+                                            <i class="fas fa-magic"></i> Generate New Keys
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button id="use-existing-keys-btn" class="btn btn-outline-primary w-100 mb-3">
+                                            <i class="fas fa-key"></i> Use Existing Keys
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Generated Keys Display -->
+                                <div id="generated-keys" class="mt-3" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Public Key</label>
+                                            <div class="key-display" id="public-key-display"></div>
+                                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="copyToClipboard('public-key-display')">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Private Key</label>
+                                            <div class="key-display key-display-scrollable" id="private-key-display"></div>
+                                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="copyToClipboard('private-key-display')">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Existing Keys Input -->
+                                <div id="existing-keys-input" class="mt-3" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Public Key (Base64)</label>
+                                            <textarea class="form-control" id="public-key-input" rows="4" placeholder="Enter your public key..."></textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Private Key (Base64)</label>
+                                            <textarea class="form-control" id="private-key-input" rows="4" placeholder="Enter your private key..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- AES/ChaCha20 Key Input -->
+                            <div id="symmetric-key-section" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Encryption Key (Base64)</label>
+                                        <textarea class="form-control" id="symmetric-key-input" rows="3" placeholder="Enter your encryption key or leave empty for auto-generation..."></textarea>
+                                        <div class="form-text">Leave empty to generate a random key</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="generated-symmetric-key" style="display: none;">
+                                            <label class="form-label">Generated Key</label>
+                                            <div class="key-display" id="symmetric-key-display"></div>
+                                            <button class="btn btn-sm btn-outline-primary mt-2" onclick="copyToClipboard('symmetric-key-display')">
+                                                <i class="fas fa-copy"></i> Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Operation Tabs -->
+                        <div class="operation-tabs">
+                            <ul class="nav nav-tabs" id="operationTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="encrypt-tab" data-bs-toggle="tab" data-bs-target="#encrypt" type="button" role="tab">
+                                        <i class="fas fa-lock"></i> Encrypt
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="decrypt-tab" data-bs-toggle="tab" data-bs-target="#decrypt" type="button" role="tab">
+                                        <i class="fas fa-unlock"></i> Decrypt/Verify
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="operationTabsContent">
+                                                                 <!-- Encrypt Tab -->
+                                 <div class="tab-pane fade show active" id="encrypt" role="tabpanel">
+                                     <div class="p-3">
+                                         <button id="encrypt-btn" class="btn btn-primary btn-lg w-100" onclick="console.log('Direct onclick triggered'); encryptFile();">
+                                             <i class="fas fa-lock"></i> <span id="encrypt-btn-text">Encrypt File</span>
+                                         </button>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Decrypt Tab -->
+                                 <div class="tab-pane fade" id="decrypt" role="tabpanel">
+                                     <div class="p-3">
+                                         <button id="decrypt-btn" class="btn btn-success btn-lg w-100">
+                                             <i class="fas fa-unlock"></i> <span id="decrypt-btn-text">Decrypt File</span>
+                                         </button>
+                                     </div>
+                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Panel -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line"></i> Results
+                        </h5>
+                    </div>
+                                         <div class="card-body">
+                         <div id="results-area" class="results-area">
+                             <div class="text-center text-muted">
+                                 <i class="fas fa-info-circle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                 <p>Upload a file and select an operation to see results here</p>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.algorithm-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.algorithm-card:hover:not(.selected) {
+    transform: translateY(-5px);
+    border-color: var(--neon-green);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+}
+
+.algorithm-card.selected {
+    border-color: var(--neon-green);
+    box-shadow: 0 15px 40px rgba(0, 255, 136, 0.4);
+    background: rgba(0, 255, 136, 0.1);
+    transform: translateY(-8px);
+}
+
+.algorithm-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--neon-green);
+    color: #000;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 10;
+}
+
+.algorithm-icon {
+    transition: all 0.3s ease;
+}
+
+.algorithm-card:hover .algorithm-icon i {
+    transform: scale(1.1);
+    text-shadow: 0 0 20px currentColor;
+}
+
+.algorithm-features {
+    margin-top: 1rem;
+}
+
+.feature-tag {
+    display: inline-block;
+    background: rgba(0, 255, 136, 0.1);
+    color: var(--neon-green);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin: 0.25rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.step-indicator {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.step {
+    text-align: center;
+    position: relative;
+}
+
+.step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-circle {
+    background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.step-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.step.active .step-label {
+    color: var(--neon-green);
+}
+
+.selected-algorithm-display {
+    background: var(--card-bg);
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.operation-tabs .nav-tabs {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.operation-tabs .nav-link {
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 10px 10px 0 0;
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+.operation-tabs .nav-link:hover {
+    color: var(--neon-green);
+    background: rgba(0, 255, 136, 0.1);
+}
+
+.operation-tabs .nav-link.active {
+    color: var(--neon-green);
+    background: rgba(0, 255, 136, 0.1);
+    border-bottom: 2px solid var(--neon-green);
+}
+
+.tab-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 15px 15px;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--neon-green);
+}
+
+.loading-spinner {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.result-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.result-item.success {
+    border-color: var(--neon-green);
+    background: rgba(0, 255, 136, 0.1);
+}
+
+ .result-item.error {
+     border-color: #ff6b6b;
+     background: rgba(255, 107, 107, 0.05);
+     box-shadow: 0 4px 20px rgba(255, 107, 107, 0.1);
+ }
+
+ /* Result area specific styling */
+ .result-item .form-control {
+     background: var(--card-bg);
+     border: 2px solid var(--border-color);
+     color: var(--text-primary);
+     border-radius: 10px;
+     font-family: 'Courier New', monospace;
+     font-size: 0.9rem;
+     line-height: 1.4;
+ }
+
+ .result-item .form-control:focus {
+     background: var(--card-bg);
+     border-color: var(--neon-green);
+     color: var(--text-primary);
+     box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+ }
+
+ .result-item .form-label {
+     color: var(--neon-green);
+     font-weight: 600;
+     margin-bottom: 0.5rem;
+ }
+
+.download-btn {
+    background: linear-gradient(45deg, var(--neon-green), var(--neon-blue));
+    color: #000;
+    border: none;
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+ .download-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+     color: #000;
+ }
+ 
+ .key-display {
+     background: var(--card-bg);
+     border: 1px solid var(--border-color);
+     border-radius: 8px;
+     padding: 0.75rem;
+     font-family: 'Courier New', monospace;
+     font-size: 0.8rem;
+     word-break: break-all;
+     max-height: 120px;
+     overflow-y: auto;
+     color: var(--neon-green);
+ }
+ 
+ .key-display-scrollable {
+     max-height: 120px;
+     overflow-y: auto;
+     scrollbar-width: thin;
+     scrollbar-color: var(--neon-green) var(--border-color);
+ }
+ 
+ .key-display-scrollable::-webkit-scrollbar {
+     width: 6px;
+ }
+ 
+ .key-display-scrollable::-webkit-scrollbar-track {
+     background: var(--border-color);
+     border-radius: 3px;
+ }
+ 
+ .key-display-scrollable::-webkit-scrollbar-thumb {
+     background: var(--neon-green);
+     border-radius: 3px;
+ }
+ 
+ .key-display-scrollable::-webkit-scrollbar-thumb:hover {
+     background: var(--neon-blue);
+ }
+ 
+ .results-area {
+     min-height: 200px;
+     max-height: 600px;
+     overflow-y: auto;
+     scrollbar-width: thin;
+     scrollbar-color: var(--neon-green) var(--border-color);
+ }
+ 
+ .results-area::-webkit-scrollbar {
+     width: 6px;
+ }
+ 
+ .results-area::-webkit-scrollbar-track {
+     background: var(--border-color);
+     border-radius: 3px;
+ }
+ 
+ .results-area::-webkit-scrollbar-thumb {
+     background: var(--neon-green);
+     border-radius: 3px;
+ }
+ 
+ .results-area::-webkit-scrollbar-thumb:hover {
+     background: var(--neon-blue);
+ }
+ 
+ .result-item {
+     background: var(--card-bg);
+     border: 1px solid var(--border-color);
+     border-radius: 10px;
+     padding: 1.5rem;
+     margin-bottom: 1rem;
+     box-shadow: 0 4px 15px rgba(0, 255, 136, 0.1);
+ }
+ 
+ .result-item.success {
+     border-color: var(--neon-green);
+     background: rgba(0, 255, 136, 0.05);
+     box-shadow: 0 4px 20px rgba(0, 255, 136, 0.1);
+ }
+ 
+ .result-item.error {
+     border-color: #ff6b6b;
+     background: rgba(255, 107, 107, 0.05);
+     box-shadow: 0 4px 20px rgba(255, 107, 107, 0.1);
+ }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .algorithm-card {
+        margin-bottom: 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .display-4 {
+        font-size: 2.2rem;
+    }
+    
+    .algorithm-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .algorithm-icon i {
+        font-size: 2.5rem !important;
+    }
+    
+    .step-indicator {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 1.8rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+    
+    .step-indicator {
+        padding: 1rem;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .step-label {
+        font-size: 0.9rem;
+    }
+    
+    .algorithm-card {
+        margin-bottom: 1rem;
+    }
+    
+    .algorithm-card .card-body {
+        padding: 1rem;
+    }
+    
+    .algorithm-icon i {
+        font-size: 2rem !important;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .card-text {
+        font-size: 0.9rem;
+    }
+    
+    .feature-tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .file-upload-area {
+        padding: 20px;
+    }
+    
+    .upload-icon {
+        font-size: 2rem;
+    }
+    
+    .upload-text {
+        font-size: 1rem;
+    }
+    
+    .upload-hint {
+        font-size: 0.8rem;
+    }
+    
+    .key-display {
+        font-size: 0.7rem;
+        padding: 10px;
+        max-height: 100px;
+    }
+    
+    .result-item {
+        padding: 1rem;
+    }
+    
+    .result-item .form-control {
+        font-size: 0.8rem;
+    }
+    
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-4 {
+        font-size: 1.5rem;
+    }
+    
+    .lead {
+        font-size: 0.9rem;
+    }
+    
+    .step-indicator {
+        padding: 0.75rem;
+    }
+    
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
+    }
+    
+    .step-label {
+        font-size: 0.8rem;
+    }
+    
+    .algorithm-card .card-body {
+        padding: 0.75rem;
+    }
+    
+    .algorithm-icon i {
+        font-size: 1.5rem !important;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .card-text {
+        font-size: 0.8rem;
+    }
+    
+    .feature-tag {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.4rem;
+    }
+    
+    .file-upload-area {
+        padding: 15px;
+    }
+    
+    .upload-icon {
+        font-size: 1.5rem;
+    }
+    
+    .upload-text {
+        font-size: 0.9rem;
+    }
+    
+    .upload-hint {
+        font-size: 0.7rem;
+    }
+    
+    .key-display {
+        font-size: 0.6rem;
+        padding: 8px;
+        max-height: 80px;
+    }
+    
+    .result-item {
+        padding: 0.75rem;
+    }
+    
+    .result-item .form-control {
+        font-size: 0.7rem;
+    }
+    
+    .btn-lg {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
+    }
+    
+    .selected-algorithm-display .card-body {
+        padding: 1rem;
+    }
+    
+    .selected-algorithm-icon {
+        font-size: 1.5rem !important;
+    }
+    
+    .selected-algorithm-title {
+        font-size: 1.1rem;
+    }
+    
+    .selected-algorithm-description {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<script>
+let selectedAlgorithm = null;
+let currentKeys = null;
+
+// Algorithm data
+const algorithmData = {
+    'RSA': {
+        title: 'RSA Encryption',
+        description: 'Asymmetric encryption using public/private key pairs with hybrid encryption for large files',
+        type: 'Asymmetric',
+        keyRequirements: 'Public key for encryption, Private key for decryption',
+        icon: 'fas fa-key',
+        iconColor: 'var(--neon-green)',
+        needsKeyGeneration: true
+    },
+    'AES': {
+        title: 'AES Encryption',
+        description: 'Symmetric encryption using AES-256-CBC with random IV generation',
+        type: 'Symmetric',
+        keyRequirements: '256-bit key (auto-generated if not provided)',
+        icon: 'fas fa-shield-alt',
+        iconColor: 'var(--neon-blue)',
+        needsKeyGeneration: false
+    },
+    'ChaCha20': {
+        title: 'ChaCha20 Encryption',
+        description: 'High-performance stream cipher with 256-bit key and 96-bit nonce',
+        type: 'Stream Cipher',
+        keyRequirements: '256-bit key (auto-generated if not provided)',
+        icon: 'fas fa-bolt',
+        iconColor: '#ff6b6b',
+        needsKeyGeneration: false
+    },
+    'Blowfish': {
+        title: 'Blowfish Encryption',
+        description: 'Fast and secure block cipher with variable key length for file encryption',
+        type: 'Block Cipher',
+        keyRequirements: '448-bit key (auto-generated if not provided)',
+        icon: 'fas fa-fish',
+        iconColor: '#feca57',
+        needsKeyGeneration: false
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Algorithm selection
+    const algorithmCards = document.querySelectorAll('.algorithm-card');
+    const proceedBtn = document.getElementById('proceed-btn');
+    const cryptoWorkspace = document.getElementById('crypto-workspace');
+    const algorithmSelection = document.getElementById('algorithm-selection');
+    
+    algorithmCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Algorithm card clicked:', this.dataset.algorithm);
+            
+            // Remove previous selection
+            algorithmCards.forEach(c => c.classList.remove('selected'));
+            
+            // Select current card
+            this.classList.add('selected');
+            
+            // Get algorithm
+            selectedAlgorithm = this.dataset.algorithm;
+            console.log('Selected algorithm:', selectedAlgorithm);
+            
+            // Show proceed button
+            proceedBtn.style.display = 'inline-block';
+        });
+        
+        // Also add mousedown event for better responsiveness
+        card.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+        });
+    });
+    
+    // Proceed button
+    proceedBtn.addEventListener('click', function() {
+        if (selectedAlgorithm) {
+            algorithmSelection.style.display = 'none';
+            cryptoWorkspace.style.display = 'block';
+            updateAlgorithmDisplay();
+            updateStepIndicator(2);
+        }
+    });
+    
+    // Back button
+    document.getElementById('back-btn').addEventListener('click', function() {
+        cryptoWorkspace.style.display = 'none';
+        algorithmSelection.style.display = 'block';
+        proceedBtn.style.display = 'none';
+        algorithmCards.forEach(c => c.classList.remove('selected'));
+        selectedAlgorithm = null;
+        updateStepIndicator(1);
+    });
+    
+         // File upload handling
+     const fileInput = document.getElementById('file-input');
+     const fileUploadArea = document.getElementById('file-upload-area');
+     const fileInfo = document.getElementById('file-info');
+     
+     // Removed duplicate click handler - the button already handles file input clicking
+     
+     fileUploadArea.addEventListener('dragover', (e) => {
+         e.preventDefault();
+         fileUploadArea.classList.add('dragover');
+     });
+     
+     fileUploadArea.addEventListener('dragleave', () => {
+         fileUploadArea.classList.remove('dragover');
+     });
+     
+     fileUploadArea.addEventListener('drop', (e) => {
+         e.preventDefault();
+         fileUploadArea.classList.remove('dragover');
+         const files = e.dataTransfer.files;
+         if (files.length > 0) {
+             fileInput.files = files;
+             handleFileSelect();
+         }
+     });
+     
+     fileInput.addEventListener('change', handleFileSelect);
+     
+     // Input mode switching
+     const fileMode = document.getElementById('fileMode');
+     const textMode = document.getElementById('textMode');
+     const fileUploadAreaDiv = document.getElementById('file-upload-area');
+     const textInputArea = document.getElementById('text-input-area');
+     
+           fileMode.addEventListener('change', function() {
+          if (this.checked) {
+              fileUploadAreaDiv.style.display = 'block';
+              textInputArea.style.display = 'none';
+              fileInfo.style.display = 'none';
+              updateButtonText('file');
+          }
+      });
+      
+      textMode.addEventListener('change', function() {
+          if (this.checked) {
+              fileUploadAreaDiv.style.display = 'none';
+              textInputArea.style.display = 'block';
+              fileInfo.style.display = 'none';
+              updateButtonText('text');
+          }
+      });
+     
+     // Key generation
+    document.getElementById('generate-keys-btn').addEventListener('click', generateKeys);
+    document.getElementById('use-existing-keys-btn').addEventListener('click', toggleExistingKeysInput);
+    
+    // Encryption/Decryption
+    const encryptBtn = document.getElementById('encrypt-btn');
+    const decryptBtn = document.getElementById('decrypt-btn');
+    
+    console.log('Looking for encrypt button:', encryptBtn);
+    console.log('Looking for decrypt button:', decryptBtn);
+    
+    if (encryptBtn) {
+        encryptBtn.addEventListener('click', function() {
+            console.log('Encrypt button clicked!');
+            console.log('selectedAlgorithm:', selectedAlgorithm);
+            encryptFile();
+        });
+    } else {
+        console.error('Encrypt button not found in DOM');
+    }
+    
+    if (decryptBtn) {
+        decryptBtn.addEventListener('click', function() {
+            console.log('Decrypt button clicked!');
+            decryptFile();
+        });
+    } else {
+        console.error('Decrypt button not found in DOM');
+    }
+});
+
+function handleFileSelect() {
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+        updateStepIndicator(3);
+    } else {
+        fileInfo.style.display = 'none';
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function updateAlgorithmDisplay() {
+    if (!selectedAlgorithm) return;
+    
+    const data = algorithmData[selectedAlgorithm];
+    const icon = document.getElementById('selected-algorithm-icon');
+    const title = document.getElementById('selected-algorithm-title');
+    const description = document.getElementById('selected-algorithm-description');
+    const type = document.getElementById('algorithm-type');
+    const requirements = document.getElementById('key-requirements');
+    
+    icon.className = data.icon;
+    icon.style.color = data.iconColor;
+    title.textContent = data.title;
+    description.textContent = data.description;
+    type.textContent = data.type;
+    requirements.textContent = data.keyRequirements;
+    
+    // Show/hide key sections
+    const keyGenSection = document.getElementById('key-generation-section');
+    const symmetricSection = document.getElementById('symmetric-key-section');
+    
+    if (data.needsKeyGeneration) {
+        keyGenSection.style.display = 'block';
+        symmetricSection.style.display = 'none';
+    } else {
+        keyGenSection.style.display = 'none';
+        symmetricSection.style.display = 'block';
+    }
+}
+
+ function updateStepIndicator(step) {
+     const steps = document.querySelectorAll('.step');
+     steps.forEach((s, index) => {
+         if (index < step) {
+             s.classList.add('active');
+         } else {
+             s.classList.remove('active');
+         }
+     });
+ }
+ 
+ function updateButtonText(inputType) {
+     const encryptBtnText = document.getElementById('encrypt-btn-text');
+     const decryptBtnText = document.getElementById('decrypt-btn-text');
+     
+     if (inputType === 'file') {
+         encryptBtnText.textContent = 'Encrypt File';
+         decryptBtnText.textContent = 'Decrypt File';
+     } else if (inputType === 'text') {
+         encryptBtnText.textContent = 'Encrypt Message';
+         decryptBtnText.textContent = 'Decrypt Message';
+     }
+ }
+
+function generateKeys() {
+    if (!selectedAlgorithm) return;
+    
+    showLoading('Generating keys...');
+    
+    fetch('/api/generate_keys', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            algorithm: selectedAlgorithm
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            currentKeys = data.keys;
+            displayGeneratedKeys();
+            showAlert('Keys generated successfully!', 'success');
+        } else {
+            showAlert(data.error || 'Failed to generate keys', 'error');
+        }
+    })
+    .catch(error => {
+        hideLoading();
+        showAlert('Error generating keys: ' + error.message, 'error');
+    });
+}
+
+function displayGeneratedKeys() {
+    const generatedKeys = document.getElementById('generated-keys');
+    const publicKeyDisplay = document.getElementById('public-key-display');
+    const privateKeyDisplay = document.getElementById('private-key-display');
+    
+    if (currentKeys) {
+        publicKeyDisplay.textContent = currentKeys.public_key;
+        privateKeyDisplay.textContent = currentKeys.private_key;
+        generatedKeys.style.display = 'block';
+    }
+}
+
+function toggleExistingKeysInput() {
+    const existingInput = document.getElementById('existing-keys-input');
+    const generatedKeys = document.getElementById('generated-keys');
+    
+    if (existingInput.style.display === 'none') {
+        existingInput.style.display = 'block';
+        generatedKeys.style.display = 'none';
+    } else {
+        existingInput.style.display = 'none';
+        generatedKeys.style.display = 'block';
+    }
+}
+
+function encryptFile() {
+    console.log('=== ENCRYPT FUNCTION STARTED ===');
+    console.log('selectedAlgorithm:', selectedAlgorithm);
+    
+    const fileMode = document.getElementById('fileMode');
+    const textMode = document.getElementById('textMode');
+    
+    if (fileMode.checked) {
+        // File encryption
+        const fileInput = document.getElementById('file-input');
+        console.log('fileInput element:', fileInput);
+        console.log('fileInput.files:', fileInput.files);
+        console.log('fileInput.files.length:', fileInput.files.length);
+        
+        if (!fileInput.files.length) {
+            console.log('No file selected - showing error');
+            showAlert('Please select a file to encrypt', 'error');
+            return;
+        }
+        
+        if (!selectedAlgorithm) {
+            console.log('No algorithm selected - showing error');
+            showAlert('Please select an algorithm', 'error');
+            return;
+        }
+        
+        console.log('Starting file encryption process...');
+        showLoading('Encrypting file...');
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('algorithm', selectedAlgorithm);
+        formData.append('input_type', 'file');
+        
+        // Add key based on algorithm
+        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+            const publicKeyInput = document.getElementById('public-key-input');
+            const generatedKeys = document.getElementById('generated-keys');
+            
+            if (generatedKeys.style.display !== 'none' && currentKeys) {
+                formData.append('key', currentKeys.public_key);
+            } else if (publicKeyInput.value) {
+                formData.append('key', publicKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please generate or provide a public key', 'error');
+                return;
+            }
+        } else {
+            const symmetricKeyInput = document.getElementById('symmetric-key-input');
+            if (symmetricKeyInput.value) {
+                formData.append('key', symmetricKeyInput.value);
+            }
+        }
+        
+        fetch('/api/encrypt', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                displayEncryptionResult(data);
+                showAlert('File encrypted successfully!', 'success');
+            } else {
+                showAlert(data.error || 'Encryption failed', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Error encrypting file: ' + error.message, 'error');
+        });
+    } else if (textMode.checked) {
+        // Text encryption
+        const textInput = document.getElementById('text-input');
+        const message = textInput.value.trim();
+        
+        if (!message) {
+            showAlert('Please enter a message to encrypt', 'error');
+            return;
+        }
+        
+        if (message.length > 10000) {
+            showAlert('Message is too long. Maximum 10,000 characters allowed.', 'error');
+            return;
+        }
+        
+        if (!selectedAlgorithm) {
+            showAlert('Please select an algorithm', 'error');
+            return;
+        }
+        
+        console.log('Starting text encryption process...');
+        showLoading('Encrypting message...');
+        
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('algorithm', selectedAlgorithm);
+        formData.append('input_type', 'text');
+        
+        // Add key based on algorithm
+        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+            const publicKeyInput = document.getElementById('public-key-input');
+            const generatedKeys = document.getElementById('generated-keys');
+            
+            if (generatedKeys.style.display !== 'none' && currentKeys) {
+                formData.append('key', currentKeys.public_key);
+            } else if (publicKeyInput.value) {
+                formData.append('key', publicKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please generate or provide a public key', 'error');
+                return;
+            }
+        } else {
+            const symmetricKeyInput = document.getElementById('symmetric-key-input');
+            if (symmetricKeyInput.value) {
+                formData.append('key', symmetricKeyInput.value);
+            }
+        }
+        
+        fetch('/api/encrypt', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                displayEncryptionResult(data);
+                showAlert('Message encrypted successfully!', 'success');
+            } else {
+                showAlert(data.error || 'Encryption failed', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Error encrypting message: ' + error.message, 'error');
+        });
+    }
+}
+
+function decryptFile() {
+    const fileMode = document.getElementById('fileMode');
+    const textMode = document.getElementById('textMode');
+    
+    if (fileMode.checked) {
+        // File decryption
+        const fileInput = document.getElementById('file-input');
+        if (!fileInput.files.length) {
+            showAlert('Please select a file to decrypt', 'error');
+            return;
+        }
+        
+        if (!selectedAlgorithm) {
+            showAlert('Please select an algorithm', 'error');
+            return;
+        }
+        
+        showLoading('Decrypting file...');
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('algorithm', selectedAlgorithm);
+        formData.append('input_type', 'file');
+        
+        // Add key based on algorithm
+        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+            const privateKeyInput = document.getElementById('private-key-input');
+            const generatedKeys = document.getElementById('generated-keys');
+            
+            if (generatedKeys.style.display !== 'none' && currentKeys) {
+                formData.append('key', currentKeys.private_key);
+            } else if (privateKeyInput.value) {
+                formData.append('key', privateKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please generate or provide a private key', 'error');
+                return;
+            }
+        } else {
+            const symmetricKeyInput = document.getElementById('symmetric-key-input');
+            if (symmetricKeyInput.value) {
+                formData.append('key', symmetricKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please provide an encryption key', 'error');
+                return;
+            }
+        }
+        
+        fetch('/api/decrypt', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                displayDecryptionResult(data);
+                showAlert('File decrypted successfully!', 'success');
+            } else {
+                showAlert(data.error || 'Decryption failed', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Error decrypting file: ' + error.message, 'error');
+        });
+    } else if (textMode.checked) {
+        // Text decryption
+        const textInput = document.getElementById('text-input');
+        const message = textInput.value.trim();
+        
+        if (!message) {
+            showAlert('Please enter a message to decrypt', 'error');
+            return;
+        }
+        
+        if (!selectedAlgorithm) {
+            showAlert('Please select an algorithm', 'error');
+            return;
+        }
+        
+        showLoading('Decrypting message...');
+        
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('algorithm', selectedAlgorithm);
+        formData.append('input_type', 'text');
+        
+        // Add key based on algorithm
+        if (algorithmData[selectedAlgorithm].needsKeyGeneration) {
+            const privateKeyInput = document.getElementById('private-key-input');
+            const generatedKeys = document.getElementById('generated-keys');
+            
+            if (generatedKeys.style.display !== 'none' && currentKeys) {
+                formData.append('key', currentKeys.private_key);
+            } else if (privateKeyInput.value) {
+                formData.append('key', privateKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please generate or provide a private key', 'error');
+                return;
+            }
+        } else {
+            const symmetricKeyInput = document.getElementById('symmetric-key-input');
+            if (symmetricKeyInput.value) {
+                formData.append('key', symmetricKeyInput.value);
+            } else {
+                hideLoading();
+                showAlert('Please provide an encryption key', 'error');
+                return;
+            }
+        }
+        
+        fetch('/api/decrypt', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                displayDecryptionResult(data);
+                showAlert('Message decrypted successfully!', 'success');
+            } else {
+                showAlert(data.error || 'Decryption failed', 'error');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            showAlert('Error decrypting message: ' + error.message, 'error');
+        });
+    }
+}
+
+function displayEncryptionResult(data) {
+    const resultsArea = document.getElementById('results-area');
+    const result = data.result;
+    
+    let html = `
+        <div class="result-item success">
+            <h6 class="text-primary mb-3">
+                <i class="fas fa-check-circle"></i> Encryption Successful
+            </h6>
+    `;
+    
+    // Show different info based on input type
+    if (data.original_filename) {
+        html += `
+            <p class="text-muted mb-2">Original file: ${data.original_filename}</p>
+            <p class="text-muted mb-3">File size: ${formatFileSize(data.file_size)}</p>
+        `;
+    } else if (data.message_length) {
+        html += `
+            <p class="text-muted mb-2">Message length: ${data.message_length} characters</p>
+        `;
+    }
+    
+    if (result.encrypted) {
+        html += `
+            <div class="mb-3">
+                <label class="form-label">Encrypted Data (Base64)</label>
+                <textarea class="form-control" rows="4" readonly>${result.encrypted}</textarea>
+            </div>
+        `;
+    }
+    
+    if (result.key) {
+        html += `
+            <div class="mb-3">
+                <label class="form-label">Generated Key (Base64)</label>
+                <textarea class="form-control" rows="3" readonly>${result.key}</textarea>
+            </div>
+        `;
+    }
+    
+    if (result.signature) {
+        html += `
+            <div class="mb-3">
+                <label class="form-label">Digital Signature (Base64)</label>
+                <textarea class="form-control" rows="3" readonly>${result.signature}</textarea>
+            </div>
+        `;
+    }
+    
+    const downloadName = data.original_filename ? `encrypted_${data.original_filename}` : 'encrypted_message.txt';
+    html += `
+        <button class="btn download-btn w-100" onclick="downloadResult('${result.encrypted || result.signature}', '${downloadName}')">
+            <i class="fas fa-download"></i> Download Result
+        </button>
+    </div>`;
+    
+    resultsArea.innerHTML = html;
+}
+
+function displayDecryptionResult(data) {
+    const resultsArea = document.getElementById('results-area');
+    const result = data.result;
+    
+    let html = `
+        <div class="result-item success">
+            <h6 class="text-primary mb-3">
+                <i class="fas fa-check-circle"></i> Decryption Successful
+            </h6>
+    `;
+    
+    // Show different info based on input type
+    if (data.filename) {
+        html += `<p class="text-muted mb-2">File: ${data.filename}</p>`;
+    } else if (data.message_length) {
+        html += `<p class="text-muted mb-2">Message length: ${data.message_length} characters</p>`;
+    }
+    
+    if (result.decrypted_data) {
+        const isBinary = result.is_binary || false;
+        const label = isBinary ? 'Decrypted Data (Binary - Base64)' : 'Decrypted Data';
+        const rows = isBinary ? '4' : '6';
+        
+        html += `
+            <div class="mb-3">
+                <label class="form-label">${label}</label>
+                <textarea class="form-control" rows="${rows}" readonly>${result.decrypted_data}</textarea>
+            </div>
+        `;
+    }
+    
+    if (result.verified !== undefined) {
+        const status = result.verified ? 'Verified' : 'Verification Failed';
+        const icon = result.verified ? 'check-circle' : 'times-circle';
+        const color = result.verified ? 'success' : 'danger';
+        
+        html += `
+            <div class="alert alert-${color}">
+                <i class="fas fa-${icon}"></i> ${status}
+            </div>
+        `;
+    }
+    
+    const downloadName = data.filename ? `decrypted_${data.filename}` : 'decrypted_message.txt';
+    html += `
+        <button class="btn download-btn w-100" onclick="downloadResult('${result.decrypted_data}', '${downloadName}')">
+            <i class="fas fa-download"></i> Download Result
+        </button>
+    </div>`;
+    
+    resultsArea.innerHTML = html;
+}
+
+function downloadResult(data, filename) {
+    if (!data) return;
+    
+    const blob = new Blob([data], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showAlert('Copied to clipboard!', 'success');
+    }).catch(() => {
+        showAlert('Failed to copy to clipboard', 'error');
+    });
+}
+
+function showLoading(message) {
+    console.log('showLoading called:', message);
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = `
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <h4>${message}</h4>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function hideLoading() {
+    console.log('hideLoading called');
+    const overlay = document.querySelector('.loading-overlay');
+    if (overlay) {
+        overlay.remove();
+    } else {
+        console.log('No loading overlay found to hide');
+    }
+}
+
+function showAlert(message, type) {
+    console.log('showAlert called with:', message, type);
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    console.log('Container found:', container);
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+        console.log('Alert added to container');
+    } else {
+        console.error('Container not found for alert - adding to body');
+        document.body.appendChild(alertDiv);
+    }
+    
+    setTimeout(() => {
+        alertDiv.remove();
+        console.log('Alert removed after timeout');
+    }, 5000);
+}
+</script>
+{% endblock %}
