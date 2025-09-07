@@ -530,7 +530,7 @@
     border-radius: 0 0 15px 15px;
 }
 
-.loading-overlay {
+#simple-loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -543,20 +543,53 @@
     z-index: 9999;
 }
 
-.loading-content {
+.simple-loading-content {
     text-align: center;
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 15px;
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--border-color);
+    border-top: 5px solid var(--neon-green);
+    border-radius: 50%;
+    animation: simpleSpin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.loading-text {
     color: var(--neon-green);
+    font-weight: 600;
+    margin: 0;
+    font-size: 1.1rem;
 }
 
-.loading-spinner {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    animation: spin 1s linear infinite;
+@keyframes simpleSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+/* Disabled button styles */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn:disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .result-item {
@@ -1861,28 +1894,93 @@ function copyToClipboard(elementId) {
     });
 }
 
+// Simple loading state management
+let isLoading = false;
+
 function showLoading(message) {
     console.log('showLoading called:', message);
+    
+    if (isLoading) {
+        console.log('Already loading, skipping');
+        return;
+    }
+    
+    isLoading = true;
+    
+    // Create simple loading overlay
     const overlay = document.createElement('div');
-    overlay.className = 'loading-overlay';
+    overlay.id = 'simple-loading-overlay';
     overlay.innerHTML = `
-        <div class="loading-content">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner"></i>
-            </div>
-            <h4>${message}</h4>
+        <div class="simple-loading-content">
+            <div class="simple-spinner"></div>
+            <p class="loading-text">${message}</p>
         </div>
     `;
+    
     document.body.appendChild(overlay);
+    
+    // Disable buttons
+    disableButtons(true);
 }
 
 function hideLoading() {
     console.log('hideLoading called');
-    const overlay = document.querySelector('.loading-overlay');
+    
+    // Remove loading overlay
+    const overlay = document.getElementById('simple-loading-overlay');
     if (overlay) {
         overlay.remove();
-    } else {
-        console.log('No loading overlay found to hide');
+    }
+    
+    // Reset state
+    isLoading = false;
+    
+    // Re-enable buttons
+    disableButtons(false);
+}
+
+function disableButtons(disabled) {
+    const encryptBtn = document.getElementById('encrypt-btn');
+    const decryptBtn = document.getElementById('decrypt-btn');
+    const generateKeysBtn = document.getElementById('generate-keys-btn');
+    
+    if (encryptBtn) {
+        encryptBtn.disabled = disabled;
+        if (disabled) {
+            encryptBtn.innerHTML = '<i class="fas fa-lock"></i> Processing...';
+        } else {
+            // Restore original button text
+            const fileMode = document.getElementById('fileMode');
+            if (fileMode && fileMode.checked) {
+                encryptBtn.innerHTML = '<i class="fas fa-lock"></i> <span id="encrypt-btn-text">Encrypt File</span>';
+            } else {
+                encryptBtn.innerHTML = '<i class="fas fa-lock"></i> <span id="encrypt-btn-text">Encrypt Message</span>';
+            }
+        }
+    }
+    
+    if (decryptBtn) {
+        decryptBtn.disabled = disabled;
+        if (disabled) {
+            decryptBtn.innerHTML = '<i class="fas fa-unlock"></i> Processing...';
+        } else {
+            // Restore original button text
+            const fileMode = document.getElementById('fileMode');
+            if (fileMode && fileMode.checked) {
+                decryptBtn.innerHTML = '<i class="fas fa-unlock"></i> <span id="decrypt-btn-text">Decrypt File</span>';
+            } else {
+                decryptBtn.innerHTML = '<i class="fas fa-unlock"></i> <span id="decrypt-btn-text">Decrypt Message</span>';
+            }
+        }
+    }
+    
+    if (generateKeysBtn) {
+        generateKeysBtn.disabled = disabled;
+        if (disabled) {
+            generateKeysBtn.innerHTML = '<i class="fas fa-magic"></i> Generating...';
+        } else {
+            generateKeysBtn.innerHTML = '<i class="fas fa-magic"></i> Generate New Keys';
+        }
     }
 }
 
