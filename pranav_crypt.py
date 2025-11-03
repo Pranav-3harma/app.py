@@ -13,6 +13,13 @@ import tempfile
 from werkzeug.utils import secure_filename
 import uuid
 import hashlib
+from PIL import Image
+import wave
+from pydub import AudioSegment
+import cv2
+import fitz  # PyMuPDF
+import io
+import struct
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
