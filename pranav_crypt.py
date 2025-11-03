@@ -1035,6 +1035,232 @@ def decrypt():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/steganography/hide', methods=['POST'])
+def steganography_hide():
+    """Hide message in carrier file using steganography"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No carrier file uploaded'}), 400
+
+        carrier_file = request.files['file']
+        if carrier_file.filename == '':
+            return jsonify({'error': 'No carrier file selected'}), 400
+
+        message = request.form.get('message', '')
+        if not message:
+            return jsonify({'error': 'No message provided'}), 400
+
+        if len(message) > 50000:
+            return jsonify({'error': 'Message too long. Maximum 50,000 characters allowed.'}), 400
+
+        # Get file type from filename or form
+        file_type = request.form.get('file_type')
+        if not file_type:
+            # Extract file extension from filename
+            filename = carrier_file.filename.lower()
+            if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                file_type = filename.split('.')[-1]
+            elif filename.endswith('.wav'):
+                file_type = 'wav'
+            elif filename.endswith('.mp4'):
+                file_type = 'mp4'
+            elif filename.endswith('.pdf'):
+                file_type = 'pdf'
+            else:
+                return jsonify({'error': 'Unsupported file format for steganography'}), 400
+
+        # Read carrier file data
+        carrier_data = carrier_file.read()
+
+        # Validate carrier file
+        if not SteganographyEngine.validate_carrier_file(carrier_data, file_type):
+            return jsonify({'error': 'Invalid or corrupted carrier file'}), 400
+
+        # Check capacity
+        capacity = SteganographyEngine.calculate_capacity(carrier_data, file_type)
+        if len(message.encode('utf-8')) > capacity:
+            return jsonify({
+                'error': 'Message too long for carrier file capacity',
+                'capacity': capacity,
+                'required': len(message.encode('utf-8'))
+            }), 400
+
+        # Hide message based on file type
+        if file_type.lower() in ['png', 'jpg', 'jpeg', 'bmp']:
+            processed_data = SteganographyEngine.hide_message_in_image(carrier_data, message)
+            output_filename = f"stego_{carrier_file.filename}"
+            if not output_filename.lower().endswith('.png'):
+                output_filename = output_filename.rsplit('.', 1)[0] + '.png'
+        elif file_type.lower() == 'wav':
+            processed_data = SteganographyEngine.hide_message_in_audio(carrier_data, message)
+            output_filename = f"stego_{carrier_file.filename}"
+        elif file_type.lower() == 'mp4':
+            processed_data = SteganographyEngine.hide_message_in_video(carrier_data, message)
+            output_filename = f"stego_{carrier_file.filename}"
+        elif file_type.lower() == 'pdf':
+            processed_data = SteganographyEngine.hide_message_in_pdf(carrier_data, message)
+            output_filename = f"stego_{carrier_file.filename}"
+        else:
+            return jsonify({'error': 'Unsupported file format for steganography'}), 400
+
+        # Save processed file temporarily
+        temp_filename = str(uuid.uuid4()) + '_' + output_filename
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], temp_filename)
+
+        with open(temp_path, 'wb') as f:
+            f.write(processed_data)
+
+        # Return success response with file info
+        return jsonify({
+            'success': True,
+            'message': 'Message successfully hidden in file',
+            'output_file': temp_filename,
+            'original_filename': carrier_file.filename,
+            'output_filename': output_filename,
+            'file_size': len(processed_data),
+            'capacity_used': len(message.encode('utf-8')),
+            'capacity_remaining': max(0, capacity - len(message.encode('utf-8'))),
+            'steganography_type': file_type
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/steganography/extract', methods=['POST'])
+def steganography_extract():
+    """Extract hidden message from steganography file"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+
+        stego_file = request.files['file']
+        if stego_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        # Get file type from filename or form
+        file_type = request.form.get('file_type')
+        if not file_type:
+            # Extract file extension from filename
+            filename = stego_file.filename.lower()
+            if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                file_type = filename.split('.')[-1]
+            elif filename.endswith('.wav'):
+                file_type = 'wav'
+            elif filename.endswith('.mp4'):
+                file_type = 'mp4'
+            elif filename.endswith('.pdf'):
+                file_type = 'pdf'
+            else:
+                return jsonify({'error': 'Unsupported file format for steganography'}), 400
+
+        # Read stego file data
+        stego_data = stego_file.read()
+
+        # Validate file
+        if not SteganographyEngine.validate_carrier_file(stego_data, file_type):
+            return jsonify({'error': 'Invalid or corrupted file'}), 400
+
+        # Extract message based on file type
+        if file_type.lower() in ['png', 'jpg', 'jpeg', 'bmp']:
+            extracted_message = SteganographyEngine.extract_message_from_image(stego_data)
+        elif file_type.lower() == 'wav':
+            extracted_message = SteganographyEngine.extract_message_from_audio(stego_data)
+        elif file_type.lower() == 'mp4':
+            extracted_message = SteganographyEngine.extract_message_from_video(stego_data)
+        elif file_type.lower() == 'pdf':
+            extracted_message = SteganographyEngine.extract_message_from_pdf(stego_data)
+        else:
+            return jsonify({'error': 'Unsupported file format for steganography'}), 400
+
+        if not extracted_message:
+            return jsonify({
+                'success': True,
+                'message': 'No hidden message found in file',
+                'extracted_message': '',
+                'message_length': 0
+            })
+
+        return jsonify({
+            'success': True,
+            'message': 'Message successfully extracted from file',
+            'extracted_message': extracted_message,
+            'message_length': len(extracted_message),
+            'steganography_type': file_type
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/steganography/analyze', methods=['POST'])
+def steganography_analyze():
+    """Analyze carrier file for steganography capacity and properties"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+
+        analysis_file = request.files['file']
+        if analysis_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+
+        # Get file type from filename or form
+        file_type = request.form.get('file_type')
+        if not file_type:
+            # Extract file extension from filename
+            filename = analysis_file.filename.lower()
+            if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                file_type = filename.split('.')[-1]
+            elif filename.endswith('.wav'):
+                file_type = 'wav'
+            elif filename.endswith('.mp4'):
+                file_type = 'mp4'
+            elif filename.endswith('.pdf'):
+                file_type = 'pdf'
+            else:
+                return jsonify({'error': 'Unsupported file format for steganography'}), 400
+
+        # Read file data
+        file_data = analysis_file.read()
+
+        # Validate file
+        if not SteganographyEngine.validate_carrier_file(file_data, file_type):
+            return jsonify({'error': 'Invalid or corrupted file'}), 400
+
+        # Calculate capacity and get file info
+        capacity = SteganographyEngine.calculate_capacity(file_data, file_type)
+
+        # Try to extract any existing message
+        try:
+            if file_type.lower() in ['png', 'jpg', 'jpeg', 'bmp']:
+                existing_message = SteganographyEngine.extract_message_from_image(file_data)
+            elif file_type.lower() == 'wav':
+                existing_message = SteganographyEngine.extract_message_from_audio(file_data)
+            elif file_type.lower() == 'mp4':
+                existing_message = SteganographyEngine.extract_message_from_video(file_data)
+            elif file_type.lower() == 'pdf':
+                existing_message = SteganographyEngine.extract_message_from_pdf(file_data)
+            else:
+                existing_message = ""
+        except:
+            existing_message = ""
+
+        has_hidden_message = bool(existing_message and existing_message.strip())
+
+        return jsonify({
+            'success': True,
+            'analysis': {
+                'file_type': file_type,
+                'file_size': len(file_data),
+                'maximum_capacity': capacity,
+                'capacity_remaining': max(0, capacity - len(existing_message.encode('utf-8'))) if has_hidden_message else capacity,
+                'supports_steganography': True,
+                'has_hidden_message': has_hidden_message,
+                'existing_message_length': len(existing_message) if has_hidden_message else 0
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/download/<filename>')
 def download(filename):
     """Download file"""
