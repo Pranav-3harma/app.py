@@ -1,13 +1,15 @@
 # PranavCrypt - Multi-Algorithm Cryptographic Application
 
 ## Overview
-PranavCrypt is a comprehensive Python Flask web application demonstrating four modern cryptographic algorithms: RSA, AES, ChaCha20, and Blowfish. It provides an interactive web interface for file and text encryption/decryption with a sleek Matrix-themed design.
+PranavCrypt is a comprehensive Python Flask web application featuring cryptographic algorithms and steganography. It demonstrates four modern encryption algorithms (RSA, AES, ChaCha20, and Blowfish) and includes LSB (Least Significant Bit) steganography for hiding secret messages in images. The application provides an interactive web interface with a sleek Matrix-themed design.
 
 ## Project Setup
 
 ### Technology Stack
 - **Backend**: Flask 2.3.3 (Python web framework)
 - **Cryptography**: Python cryptography library 41.0.7
+- **Steganography**: Stegano 2.0.0 (LSB steganography for images)
+- **Image Processing**: Pillow 11.3.0, OpenCV 4.12.0
 - **Frontend**: Bootstrap 5.1.3, Font Awesome 6.0.0
 - **Server**: Gunicorn 21.2.0 (production)
 - **Python Version**: 3.11
@@ -21,6 +23,7 @@ PranavCrypt is a comprehensive Python Flask web application demonstrating four m
 │   ├── base.html           # Base template with navigation and styling
 │   ├── home.html           # Home page with algorithm showcase
 │   ├── encrypt_decrypt.html # Main encryption/decryption interface
+│   ├── steganography.html  # Steganography interface for hiding messages in images
 │   ├── about.html          # About page with algorithm details
 │   └── index.html          # Index page
 ├── temp_uploads/           # Temporary file storage (auto-created)
@@ -32,6 +35,12 @@ PranavCrypt is a comprehensive Python Flask web application demonstrating four m
 2. **AES**: Symmetric encryption using AES-256-CBC with random IV generation
 3. **ChaCha20**: High-performance stream cipher with 256-bit keys
 4. **Blowfish**: Fast block cipher with 448-bit keys and CBC mode
+
+### Steganography Feature
+- **LSB Steganography**: Hide secret messages invisibly in image files using Least Significant Bit encoding
+- **Supported Formats**: PNG, JPG, JPEG, BMP, GIF, TIFF
+- **Security**: 10MB max image size, 50,000 character max message length
+- **Features**: File validation, extension whitelist, secure filename generation, no visible changes to images
 
 ## Replit Configuration
 
@@ -88,6 +97,15 @@ Access at: `http://localhost:5000`
 The app is configured for Replit's autoscale deployment using Gunicorn as the WSGI server.
 
 ## Recent Changes
+- **2025-11-03**: Steganography Feature Added
+  - Installed stegano library (2.0.0) for LSB steganography
+  - Created `Steganography` class for image-based steganography
+  - Added `/steganography` page with hide/reveal functionality
+  - Implemented secure file validation (extension whitelist, size limits)
+  - Added API routes: `/api/steg_hide` and `/api/steg_reveal`
+  - Updated navigation to include steganography link
+  - Security features: 10MB max image size, 50,000 char message limit
+  
 - **2025-11-03**: Initial Replit setup
   - Installed Python 3.11 and dependencies
   - Configured workflow for port 5000
