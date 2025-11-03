@@ -284,6 +284,91 @@ class PranavCrypt:
         except Exception as e:
             raise ValueError(f"Blowfish decryption failed: {str(e)}")
 
+class Steganography:
+    """Steganography - Hide text data in image files using LSB encoding"""
+    
+    ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tiff', '.tif'}
+    MAX_MESSAGE_SIZE = 50000
+    MAX_IMAGE_SIZE = 10 * 1024 * 1024
+    
+    @staticmethod
+    def validate_image_file(filename):
+        """Validate if file is an allowed image type"""
+        if not filename:
+            raise ValueError("Invalid filename")
+        
+        filename_lower = filename.lower()
+        is_valid = any(filename_lower.endswith(ext) for ext in Steganography.ALLOWED_EXTENSIONS)
+        
+        if not is_valid:
+            raise ValueError(f"Unsupported file type. Supported formats: {', '.join(sorted(Steganography.ALLOWED_EXTENSIONS))}")
+        
+        return True
+    
+    @staticmethod
+    def hide_in_image(image_data, message, filename):
+        """Hide text in an image using LSB steganography"""
+        try:
+            from stegano import lsb
+            from PIL import Image
+            import io
+            
+            if len(image_data) > Steganography.MAX_IMAGE_SIZE:
+                raise ValueError(f"Image too large. Maximum size is {Steganography.MAX_IMAGE_SIZE // (1024*1024)}MB")
+            
+            if len(message) > Steganography.MAX_MESSAGE_SIZE:
+                raise ValueError(f"Message too long. Maximum {Steganography.MAX_MESSAGE_SIZE} characters")
+            
+            Steganography.validate_image_file(filename)
+            
+            image = Image.open(io.BytesIO(image_data))
+            
+            if image.mode not in ['RGB', 'RGBA']:
+                image = image.convert('RGB')
+            
+            secret_image = lsb.hide(image, message)
+            
+            output = io.BytesIO()
+            image_format = 'PNG'
+            
+            secret_image.save(output, format=image_format)
+            output.seek(0)
+            
+            result_data = output.read()
+            
+            if len(result_data) > app.config['MAX_CONTENT_LENGTH']:
+                raise ValueError("Result image exceeds maximum allowed size")
+            
+            return result_data
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError("Image processing failed. Please ensure the file is a valid image")
+    
+    @staticmethod
+    def reveal_from_image(image_data):
+        """Reveal hidden text from an image using LSB steganography"""
+        try:
+            from stegano import lsb
+            from PIL import Image
+            import io
+            
+            if len(image_data) > Steganography.MAX_IMAGE_SIZE:
+                raise ValueError(f"Image too large. Maximum size is {Steganography.MAX_IMAGE_SIZE // (1024*1024)}MB")
+            
+            image = Image.open(io.BytesIO(image_data))
+            
+            hidden_message = lsb.reveal(image)
+            
+            if hidden_message is None or hidden_message == '':
+                return None
+            
+            return hidden_message
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError("Failed to reveal message. Please ensure this is a valid image with hidden data")
+
 @app.route('/')
 def home():
     """Home page"""
@@ -556,6 +641,108 @@ def decrypt():
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/steganography')
+def steganography():
+    """Steganography page"""
+    return render_template('steganography.html')
+
+@app.route('/api/steg_hide', methods=['POST'])
+def steg_hide():
+    """Hide text in an image using LSB steganography"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if not file.filename or file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        message = request.form.get('message')
+        if not message:
+            return jsonify({'error': 'No message provided'}), 400
+        
+        filename = secure_filename(file.filename)
+        if not filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        try:
+            Steganography.validate_image_file(filename)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        
+        file_data = file.read()
+        
+        if not file_data:
+            return jsonify({'error': 'Empty file uploaded'}), 400
+        
+        try:
+            result_data = Steganography.hide_in_image(file_data, message, filename)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        
+        import uuid
+        safe_filename = f"steg_{uuid.uuid4().hex[:8]}_{filename.split('.')[-1]}.png"
+        
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
+        with open(file_path, 'wb') as f:
+            f.write(result_data)
+        
+        return jsonify({
+            'success': True,
+            'filename': safe_filename,
+            'file_size': len(result_data),
+            'message_length': len(message)
+        })
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'An error occurred while processing your request'}), 500
+
+@app.route('/api/steg_reveal', methods=['POST'])
+def steg_reveal():
+    """Reveal hidden text from an image"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if not file.filename or file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        filename = secure_filename(file.filename)
+        if not filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        try:
+            Steganography.validate_image_file(filename)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        
+        file_data = file.read()
+        
+        if not file_data:
+            return jsonify({'error': 'Empty file uploaded'}), 400
+        
+        try:
+            hidden_message = Steganography.reveal_from_image(file_data)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        
+        if hidden_message is None:
+            return jsonify({'error': 'No hidden message found in this image'}), 404
+        
+        return jsonify({
+            'success': True,
+            'message': hidden_message,
+            'message_length': len(hidden_message)
+        })
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'An error occurred while processing your request'}), 500
 
 @app.route('/download/<filename>')
 def download(filename):

@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}PranavCrypt - Steganography{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-eye-slash text-primary"></i> Steganography
+            </h1>
+            <p class="lead text-muted">Hide secret messages invisibly inside image files</p>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>How it works:</strong> Uses LSB (Least Significant Bit) encoding to hide your message in the pixel data of images. The changes are completely invisible to the human eye, but can be extracted later with this tool.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-user-secret"></i> Hide Message</h4>
+                </div>
+                <div class="card-body">
+                    <form id="hideForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="hideFile" class="form-label">
+                                <i class="fas fa-image"></i> Select Image File
+                            </label>
+                            <input type="file" class="form-control" id="hideFile" name="file" accept=".png,.jpg,.jpeg,.bmp,.gif,.tiff,.tif" required>
+                            <div class="form-text">
+                                Supported formats: PNG, JPG, JPEG, BMP, GIF, TIFF (Maximum 10MB)
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hideMessage" class="form-label">
+                                <i class="fas fa-comment-dots"></i> Secret Message
+                            </label>
+                            <textarea class="form-control" id="hideMessage" name="message" rows="6" 
+                                placeholder="Enter the secret message you want to hide..." required></textarea>
+                            <div class="form-text">
+                                Maximum 50,000 characters
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100" id="hideBtn">
+                            <i class="fas fa-lock"></i> Hide Message in File
+                        </button>
+                    </form>
+
+                    <div id="hideResult" class="result-area mt-4" style="display: none;">
+                        <h5><i class="fas fa-check-circle"></i> Message Hidden Successfully!</h5>
+                        <div id="hideResultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-search"></i> Reveal Message</h4>
+                </div>
+                <div class="card-body">
+                    <form id="revealForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="revealFile" class="form-label">
+                                <i class="fas fa-image"></i> Select Image with Hidden Message
+                            </label>
+                            <input type="file" class="form-control" id="revealFile" name="file" accept=".png,.jpg,.jpeg,.bmp,.gif,.tiff,.tif" required>
+                            <div class="form-text">
+                                Upload an image that contains a hidden message
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100" id="revealBtn">
+                            <i class="fas fa-unlock"></i> Reveal Hidden Message
+                        </button>
+                    </form>
+
+                    <div id="revealResult" class="result-area mt-4" style="display: none;">
+                        <h5><i class="fas fa-eye"></i> Hidden Message Revealed:</h5>
+                        <div id="revealResultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-graduation-cap"></i> How Steganography Works</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h5 class="text-primary"><i class="fas fa-shield-alt"></i> LSB Steganography</h5>
+                            <p class="text-muted">
+                                LSB (Least Significant Bit) steganography hides your message by modifying the least significant bits 
+                                of pixel color values. These changes are completely invisible to the human eye.
+                            </p>
+                            <ul class="text-muted">
+                                <li>Supports PNG, JPG, BMP, GIF, TIFF</li>
+                                <li>No visible changes to the image</li>
+                                <li>Image remains fully functional</li>
+                                <li>Message is imperceptible without this tool</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h5 class="text-success"><i class="fas fa-lock"></i> Security Features</h5>
+                            <p class="text-muted">
+                                Your images and messages are processed securely and are never permanently stored on our servers.
+                                All files are automatically deleted after download.
+                            </p>
+                            <ul class="text-muted">
+                                <li>Maximum image size: 10MB</li>
+                                <li>Maximum message length: 50,000 characters</li>
+                                <li>No server-side storage of your data</li>
+                                <li>Instant download of results</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <strong>Important:</strong> This tool is for educational purposes. Always ensure you have the right to modify images and comply with applicable laws.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-area {
+    border-radius: 15px;
+    padding: 20px;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-display {
+    background: var(--darker-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    color: var(--neon-green);
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.download-btn {
+    margin-top: 15px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hideForm = document.getElementById('hideForm');
+    const revealForm = document.getElementById('revealForm');
+    const hideResult = document.getElementById('hideResult');
+    const revealResult = document.getElementById('revealResult');
+    const hideResultContent = document.getElementById('hideResultContent');
+    const revealResultContent = document.getElementById('revealResultContent');
+    const hideBtn = document.getElementById('hideBtn');
+    const revealBtn = document.getElementById('revealBtn');
+
+    hideForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(hideForm);
+        const message = document.getElementById('hideMessage').value;
+        
+        if (message.length > 50000) {
+            showError(hideResult, hideResultContent, 'Message too long. Maximum 50,000 characters allowed.');
+            return;
+        }
+        
+        hideBtn.disabled = true;
+        hideBtn.innerHTML = '<span class="loading-spinner"></span> Hiding Message...';
+        hideResult.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/steg_hide', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                hideResult.className = 'result-area result-success';
+                hideResult.style.display = 'block';
+                hideResultContent.innerHTML = `
+                    <div class="info-item">
+                        <span><i class="fas fa-image"></i> Output File:</span>
+                        <span><strong>${data.filename}</strong></span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fas fa-shield-alt"></i> Method:</span>
+                        <span>LSB Steganography (PNG format)</span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fas fa-hdd"></i> File Size:</span>
+                        <span>${formatFileSize(data.file_size)}</span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fas fa-envelope"></i> Message Length:</span>
+                        <span>${data.message_length} characters</span>
+                    </div>
+                    <a href="/download/${data.filename}" class="btn btn-primary download-btn w-100">
+                        <i class="fas fa-download"></i> Download Image with Hidden Message
+                    </a>
+                `;
+            } else {
+                showError(hideResult, hideResultContent, data.error || 'Failed to hide message');
+            }
+        } catch (error) {
+            showError(hideResult, hideResultContent, 'Network error: ' + error.message);
+        } finally {
+            hideBtn.disabled = false;
+            hideBtn.innerHTML = '<i class="fas fa-lock"></i> Hide Message in File';
+        }
+    });
+
+    revealForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(revealForm);
+        
+        revealBtn.disabled = true;
+        revealBtn.innerHTML = '<span class="loading-spinner"></span> Revealing Message...';
+        revealResult.style.display = 'none';
+        
+        try {
+            const response = await fetch('/api/steg_reveal', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                revealResult.className = 'result-area result-success';
+                revealResult.style.display = 'block';
+                revealResultContent.innerHTML = `
+                    <div class="info-item">
+                        <span><i class="fas fa-shield-alt"></i> Detection Method:</span>
+                        <span>LSB Steganography</span>
+                    </div>
+                    <div class="info-item">
+                        <span><i class="fas fa-envelope"></i> Message Length:</span>
+                        <span>${data.message_length} characters</span>
+                    </div>
+                    <div class="message-display">${escapeHtml(data.message)}</div>
+                    <button class="btn btn-outline-primary w-100 mt-3" id="copyMessageBtn">
+                        <i class="fas fa-copy"></i> Copy Message
+                    </button>
+                `;
+                
+                document.getElementById('copyMessageBtn').addEventListener('click', function() {
+                    copyMessage(data.message);
+                });
+            } else {
+                showError(revealResult, revealResultContent, data.error || 'No hidden message found in the file');
+            }
+        } catch (error) {
+            showError(revealResult, revealResultContent, 'Network error: ' + error.message);
+        } finally {
+            revealBtn.disabled = false;
+            revealBtn.innerHTML = '<i class="fas fa-unlock"></i> Reveal Hidden Message';
+        }
+    });
+
+    function showError(resultDiv, contentDiv, message) {
+        resultDiv.className = 'result-area result-error';
+        resultDiv.style.display = 'block';
+        contentDiv.innerHTML = `
+            <p><i class="fas fa-exclamation-circle"></i> <strong>Error:</strong> ${message}</p>
+        `;
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    window.copyMessage = function(message) {
+        const textArea = document.createElement('textarea');
+        textArea.value = message;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        alert('Message copied to clipboard!');
+    };
+});
+</script>
+{% endblock %}
